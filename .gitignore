@@ -1,0 +1,12 @@
+.DS_Store
+relay/node_modules/
+relay/.env
+relay/serviceAccount.json
+relay/cache/
+client/build/
+client/*.3dsx
+client/*.smdh
+client/*.elf
+client/*.cia
+client/romfs/*.bcfnt
+client/romfs/gfx/

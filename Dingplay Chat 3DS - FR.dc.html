@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#FFF3E0;-webkit-font-smoothing:antialiased;}
+  a{color:#EF850C;text-decoration:none;}
+  a:hover{color:#2FB86E;}
+  @keyframes dpDrift{from{background-position:0 0;}to{background-position:28px -28px;}}
+</style>
+</helmet>
+
+<div style="font-family:'Nunito',system-ui,sans-serif;color:#241F1A;background:#FFF3E0;padding:40px 24px 80px;">
+
+  <!-- ===== HEADER ===== -->
+  <div style="max-width:1320px;margin:0 auto 44px;">
+    <div style="display:inline-block;background:#241F1A;color:#FFD98A;font-weight:900;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;padding:7px 14px;border-radius:9px;transform:rotate(-2deg);">Maquettes · homebrew New Nintendo 3DS</div>
+    <h1 style="font-size:clamp(34px,5vw,58px);line-height:1;letter-spacing:-2px;font-weight:900;margin:18px 0 0;">Dingplay Chat</h1>
+    <p style="font-size:17px;font-weight:700;line-height:1.5;max-width:720px;margin:14px 0 0;color:#5a5149;text-wrap:pretty;">Chaque écran est dessiné à la résolution native de la console — écran haut 400 × 240 (affichage seul), écran bas 320 × 240 (tactile résistif). Affiché à 1,5× pour la relecture. Rien n'est tactile sur l'écran du haut.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+      <div style="background:#fff;border:2px solid #241F1A;border-radius:10px;box-shadow:3px 3px 0 #241F1A;padding:8px 13px;font-weight:900;font-size:13px;">Nunito · encre #241F1A</div>
+      <div style="background:#F7941E;color:#fff;border:2px solid #241F1A;border-radius:10px;box-shadow:3px 3px 0 #241F1A;padding:8px 13px;font-weight:900;font-size:13px;">#F7941E</div>
+      <div style="background:#2FB86E;color:#fff;border:2px solid #241F1A;border-radius:10px;box-shadow:3px 3px 0 #241F1A;padding:8px 13px;font-weight:900;font-size:13px;">#2FB86E</div>
+      <div style="background:#37A8EE;color:#fff;border:2px solid #241F1A;border-radius:10px;box-shadow:3px 3px 0 #241F1A;padding:8px 13px;font-weight:900;font-size:13px;">#37A8EE</div>
+      <div style="background:#fff;background-image:radial-gradient(rgba(36,31,26,.17) 1.5px,transparent 1.5px);background-size:14px 14px;animation:dpDrift 9s linear infinite;color:#241F1A;border:2px solid #241F1A;border-radius:10px;box-shadow:3px 3px 0 #241F1A;padding:8px 13px;font-weight:900;font-size:13px;">#FFFFFF + dots</div>
+    </div>
+  </div>
+
+  <div style="max-width:1320px;margin:0 auto;display:grid;gap:44px 36px;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));justify-items:center;">
+
+    <!-- ============ 1. BOOT ============ -->
+    <div data-screen-label="01 Boot" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <!-- TOP -->
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;position:relative;background:#F7941E;background-image:radial-gradient(rgba(255,255,255,.3) 1.5px,transparent 1.5px);background-size:14px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+            <div style="width:74px;height:74px;border:3px dashed #241F1A;border-radius:18px;background:rgba(255,255,255,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+              <div style="font-size:10px;font-weight:900;letter-spacing:.5px;">LOGO</div>
+              <div style="font-size:7px;font-weight:800;color:#8a6a3a;">à fournir</div>
+            </div>
+            <div style="font-size:27px;font-weight:900;color:#fff;letter-spacing:-1px;text-shadow:0 3px 0 #241F1A;">DINGPLAY CHAT</div>
+            <div style="background:#241F1A;color:#FFD98A;font-size:9px;font-weight:900;letter-spacing:1.2px;padding:4px 9px;border-radius:6px;">POUR NEW NINTENDO 3DS</div>
+          </div>
+        </div>
+        <!-- BOTTOM -->
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#241F1A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;">
+            <div style="font-size:12px;font-weight:900;color:#fff;letter-spacing:.4px;">Réveil de la console…</div>
+            <div style="width:240px;height:16px;border:2px solid #fff;border-radius:8px;padding:2px;">
+              <div style="width:62%;height:100%;background:#2FB86E;border-radius:5px;"></div>
+            </div>
+            <div style="font-size:9px;font-weight:800;color:#B9AE9E;">Vérification du Wi-Fi · chargement des amis</div>
+            <div style="margin-top:6px;background:rgba(255,255,255,.08);border:1px solid #4a423a;border-radius:8px;padding:8px 11px;max-width:260px;">
+              <div style="font-size:8px;font-weight:900;color:#F7941E;letter-spacing:1px;">ASTUCE</div>
+              <div style="font-size:9px;font-weight:700;color:#E7DDCE;line-height:1.35;">Pas de Wi-Fi ? Le sans-fil local marche sans compte.</div>
+            </div>
+            <div style="position:absolute;bottom:14px;font-size:8px;font-weight:800;color:#6B6357;">v0.1.0 · homebrew · non officiel</div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">01 · Démarrage</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Le splash utilise le logo fourni — le cadre en pointillés marque son emplacement. L'écran du bas porte la progression pour garder le haut purement graphique.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 2. LOGIN ============ -->
+    <div data-screen-label="02 Login" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;position:relative;background:#F7941E;background-image:radial-gradient(rgba(255,255,255,.3) 1.5px,transparent 1.5px);background-size:14px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:40px;height:40px;border:2px dashed #241F1A;border-radius:11px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">LOGO</div>
+              <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-1px;text-shadow:0 3px 0 #241F1A;">DINGPLAY</div>
+            </div>
+            <div style="background:#fff;border:3px solid #241F1A;border-radius:14px;box-shadow:4px 4px 0 #241F1A;padding:12px 16px;text-align:center;max-width:300px;">
+              <div style="font-size:14px;font-weight:900;">Connecte-toi à ton compte</div>
+              <div style="font-size:10px;font-weight:700;color:#6B6357;margin-top:3px;line-height:1.35;">Tes amis, tes discussions, ton profil Dingplay — sur la console.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#241F1A;border-radius:12px;padding:8px 11px;max-width:330px;">
+              <div style="flex:1;">
+                <div style="font-size:11px;font-weight:900;color:#FFD98A;letter-spacing:.6px;">PAS ENCORE DE COMPTE ?</div>
+                <div style="font-size:10px;font-weight:800;color:#E7DDCE;line-height:1.35;margin-top:2px;">Télécharge Dingplay sur ton téléphone, crée ton compte là-bas, puis connecte-toi ici.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;align-items:center;gap:5px;background:#fff;border-radius:6px;padding:3px 7px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="#241F1A"><path d="M17.05 12.04c.03-2.5 2.04-3.7 2.13-3.75-1.16-1.7-2.97-1.93-3.61-1.96-1.54-.16-3 .9-3.78.9-.79 0-1.98-.88-3.25-.85-1.67.02-3.21.97-4.07 2.47-1.74 3.01-.44 7.46 1.24 9.9.82 1.19 1.8 2.53 3.08 2.48 1.24-.05 1.71-.8 3.21-.8 1.49 0 1.92.8 3.23.77 1.33-.02 2.18-1.21 3-2.41.94-1.38 1.33-2.72 1.35-2.79-.03-.01-2.59-1-2.61-3.96zM14.6 4.6c.68-.83 1.14-1.98 1.01-3.13-.98.04-2.17.65-2.87 1.48-.63.73-1.18 1.9-1.03 3.02 1.09.09 2.21-.55 2.89-1.37z"/></svg>
+                  <div style="font-size:9px;font-weight:900;color:#241F1A;">App Store</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;background:#fff;border-radius:6px;padding:3px 7px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24"><path fill="#3DDC84" d="M3.6 1.8 14 12.1 3.6 22.4c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4z"/><path fill="#FFD400" d="M17.9 15.6 14 12.1l3.9-3.5 3.3 1.9c.8.5.8 1.7 0 2.2l-3.3 1.9z"/><path fill="#EA4335" d="M3.6 22.4 14 12.1l3.9 3.5-11.3 6.6c-.9.5-2 .5-3 .2z"/><path fill="#4285F4" d="M6.6 1.6 17.9 8.2 14 12.1 3.6 1.8c1-.3 2.1-.3 3-.2z"/></svg>
+                  <div style="font-size:9px;font-weight:900;color:#241F1A;">Google Play</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#241F1A;color:#fff;font-size:9px;font-weight:900;padding:4px 8px;border-radius:6px;">1 284 joueurs en ligne</div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;padding:12px;display:flex;flex-direction:column;gap:8px;">
+            <div>
+              <div style="font-size:9px;font-weight:900;letter-spacing:.8px;color:#6B6357;">NOM D'UTILISATEUR</div>
+              <div style="margin-top:3px;height:32px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;padding:0 10px;font-size:13px;font-weight:800;">kev_ding</div>
+            </div>
+            <div>
+              <div style="font-size:9px;font-weight:900;letter-spacing:.8px;color:#2FB86E;">MOT DE PASSE · appui = clavier</div>
+              <div style="margin-top:3px;height:32px;background:#fff;border:3px solid #2FB86E;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;box-shadow:0 0 0 2px rgba(47,184,110,.25);">
+                <div style="font-size:14px;font-weight:900;letter-spacing:2px;">••••••••<span style="color:#2FB86E;">|</span></div>
+                <div style="font-size:9px;font-weight:900;color:#6B6357;">VOIR</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <div style="width:16px;height:16px;border:2px solid #241F1A;border-radius:5px;background:#2FB86E;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:900;">✓</div>
+              <div style="font-size:11px;font-weight:800;">Rester connecté sur cette console</div>
+            </div>
+            <div style="height:38px;background:#2FB86E;border:3px solid #241F1A;border-radius:11px;box-shadow:0 4px 0 #145c36;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;letter-spacing:.5px;">SE CONNECTER</div>
+            <div style="height:30px;background:#fff;border:2px dashed #241F1A;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#241F1A;">Jouer en sans-fil local sans compte →</div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">02 · Connexion</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Le champ actif prend l'anneau vert et le curseur ; l'appui passe la main au clavier système. L'option sans compte reste sous l'action principale.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 3. HOME ============ -->
+    <div data-screen-label="03 Home" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#fff;background-image:radial-gradient(rgba(36,31,26,.17) 1.5px,transparent 1.5px);background-size:14px 14px;animation:dpDrift 9s linear infinite;display:flex;flex-direction:column;">
+            <div style="height:22px;background:#241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+              <div style="font-size:10px;font-weight:900;color:#fff;letter-spacing:1px;">DINGPLAY CHAT</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="display:flex;align-items:flex-end;gap:1.5px;height:9px;"><div style="width:2.5px;height:3px;background:#2FB86E;"></div><div style="width:2.5px;height:5px;background:#2FB86E;"></div><div style="width:2.5px;height:7px;background:#2FB86E;"></div><div style="width:2.5px;height:9px;background:#2FB86E;"></div></div>
+                <div style="font-size:9px;font-weight:900;color:#fff;">16:24</div>
+                <div style="width:16px;height:8px;border:1.5px solid #fff;border-radius:2px;padding:1px;"><div style="width:70%;height:100%;background:#fff;"></div></div>
+              </div>
+            </div>
+            <div style="flex:1;padding:14px 16px;display:flex;gap:14px;align-items:center;">
+              <img src="assets/mii1.png" alt="" style="width:64px;height:64px;border-radius:18px;border:3px solid #241F1A;object-fit:cover;background:#fff;">
+              <div>
+                <div style="font-size:20px;font-weight:900;color:#241F1A;letter-spacing:-.5px;">Salut, Kévin</div>
+                <div style="font-size:11px;font-weight:800;color:#6B6357;margin-top:2px;">@kev_ding · Level 12</div>
+                <div style="display:flex;gap:6px;margin-top:7px;">
+                  <div style="background:#2FB86E;color:#fff;font-size:9px;font-weight:900;padding:3px 8px;border-radius:6px;">3 amis en ligne</div>
+                  <div style="background:#37A8EE;color:#fff;font-size:9px;font-weight:900;padding:3px 8px;border-radius:6px;">2 non lus</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:24px;background:#F7941E;display:flex;align-items:center;padding:0 10px;gap:8px;">
+              <div style="background:#241F1A;color:#FFD98A;font-size:8px;font-weight:900;letter-spacing:1px;padding:2px 6px;border-radius:4px;">NOUVEAU</div>
+              <div style="font-size:10px;font-weight:900;color:#fff;">Les notes vocales marchent en sans-fil local</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;height:118px;background:#2FB86E;border:3px solid #241F1A;border-radius:14px;box-shadow:0 5px 0 #145c36;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <img src="assets/icons/global.svg" alt="" style="width:30px;height:30px;filter:brightness(0) invert(1);">
+                <div>
+                  <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;">EN LIGNE</div>
+                  <div style="font-size:9px;font-weight:800;color:#d8f5e6;margin-top:3px;line-height:1.3;">Amis &amp; salon global</div>
+                </div>
+              </div>
+              <div style="flex:1;height:118px;background:#37A8EE;border:3px solid #241F1A;border-radius:14px;box-shadow:0 5px 0 #1a6899;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <img src="assets/icons/multiplayer.svg" alt="" style="width:30px;height:30px;filter:brightness(0) invert(1);">
+                <div>
+                  <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;">LOCAL</div>
+                  <div style="font-size:9px;font-weight:800;color:#d6eefc;margin-top:3px;line-height:1.3;">Consoles proches, sans Wi-Fi</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;height:44px;background:#fff;border:3px solid #241F1A;border-radius:12px;box-shadow:0 4px 0 #241F1A;display:flex;align-items:center;justify-content:center;gap:7px;">
+                <img src="assets/icons/user.svg" alt="" style="width:18px;height:18px;">
+                <div style="font-size:13px;font-weight:900;">Amis</div>
+              </div>
+              <div style="flex:1;height:44px;background:#fff;border:3px solid #241F1A;border-radius:12px;box-shadow:0 4px 0 #241F1A;display:flex;align-items:center;justify-content:center;gap:7px;">
+                <img src="assets/icons/settings.svg" alt="" style="width:18px;height:18px;">
+                <div style="font-size:13px;font-weight:900;">Réglages</div>
+              </div>
+            </div>
+            <div style="font-size:9px;font-weight:800;color:#8a8076;text-align:center;">START : quitter vers le menu HOME</div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">03 · Accueil / choix du mode</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Deux cibles de 148 × 118 portent toute la décision. Profil et actus restent en haut pour dégager l'écran tactile.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 4. FRIENDS + GLOBAL ============ -->
+    <div data-screen-label="04 Friends list" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#fff;background-image:radial-gradient(rgba(36,31,26,.17) 1.5px,transparent 1.5px);background-size:14px 14px;animation:dpDrift 9s linear infinite;padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:10px;font-weight:900;color:#6B6357;letter-spacing:1.2px;">SÉLECTION</div>
+            <div style="background:#fff;border:2px solid #241F1A;border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;">
+              <img src="assets/mii2.png" alt="" style="width:56px;height:56px;border-radius:16px;border:3px solid #2FB86E;object-fit:cover;background:#fff;">
+              <div style="flex:1;">
+                <div style="font-size:18px;font-weight:900;color:#241F1A;">Léa</div>
+                <div style="font-size:10px;font-weight:800;color:#6B6357;">@lea_pxl · en ligne</div>
+                <div style="margin-top:6px;display:inline-block;background:#2FB86E;color:#fff;font-size:9px;font-weight:900;padding:3px 8px;border-radius:6px;">Joue à Mario Kart 7</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:20px;font-weight:900;color:#F7941E;line-height:1;">4</div>
+                <div style="font-size:8px;font-weight:900;color:#6B6357;">NON LUS</div>
+              </div>
+            </div>
+            <div style="background:#F7941E;border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:13px;font-weight:900;color:#fff;">Salon global</div>
+                <div style="font-size:9px;font-weight:800;color:#3d2a0d;">Tout Dingplay · français &amp; anglais</div>
+              </div>
+              <div style="background:#241F1A;color:#fff;font-size:11px;font-weight:900;padding:5px 9px;border-radius:7px;">128 ici</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="display:flex;border-bottom:3px solid #241F1A;">
+              <div style="flex:1;height:30px;background:#241F1A;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;">AMIS</div>
+              <div style="flex:1;height:30px;background:#EBDFC9;color:#6B6357;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:5px;">DEMANDES <span style="background:#EF4444;color:#fff;border-radius:6px;padding:1px 5px;font-size:9px;">2</span></div>
+            </div>
+            <div style="padding:8px;display:flex;flex-direction:column;gap:6px;flex:1;">
+              <div style="height:34px;background:#F7941E;border:2px solid #241F1A;border-radius:10px;box-shadow:0 3px 0 #a8620a;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+                <div style="display:flex;align-items:center;gap:7px;"><img src="assets/icons/global.svg" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);"><div style="font-size:13px;font-weight:900;color:#fff;">Salon global</div></div>
+                <div style="font-size:10px;font-weight:900;color:#fff;">128 ›</div>
+              </div>
+              <div style="height:34px;background:#fff;border:2px solid #241F1A;border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 9px;box-shadow:inset 0 0 0 2px #2FB86E;">
+                <div style="width:8px;height:8px;border-radius:50%;background:#2FB86E;"></div>
+                <img src="assets/mii2.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                <div style="flex:1;font-size:13px;font-weight:900;">Léa</div>
+                <div style="background:#EF4444;color:#fff;font-size:9px;font-weight:900;border-radius:6px;padding:2px 6px;">4</div>
+              </div>
+              <div style="height:34px;background:#fff;border:2px solid #241F1A;border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 9px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:#2FB86E;"></div>
+                <img src="assets/default_profile.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                <div style="flex:1;font-size:13px;font-weight:900;">Tom_64</div>
+                <div style="font-size:9px;font-weight:800;color:#6B6357;">dans un salon</div>
+              </div>
+              <div style="height:34px;background:#fff;border:2px solid #241F1A;border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 9px;opacity:.6;">
+                <div style="width:8px;height:8px;border-radius:50%;background:#B9AE9E;"></div>
+                <img src="assets/default_profile.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                <div style="flex:1;font-size:13px;font-weight:900;">Maya</div>
+                <div style="font-size:9px;font-weight:800;color:#6B6357;">il y a 2 h</div>
+              </div>
+            </div>
+            <div style="height:30px;border-top:2px solid #241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#EBDFC9;">
+              <div style="font-size:10px;font-weight:900;">B · Retour</div>
+              <div style="display:flex;align-items:center;gap:5px;"><img src="assets/icons/add-friend.svg" alt="" style="width:14px;height:14px;"><div style="font-size:10px;font-weight:900;">Ajouter un ami</div></div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">04 · En ligne — amis &amp; global</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Les lignes font 34 px et sont tactiles sur toute leur largeur. La ligne sélectionnée se reflète en haut, la liste n'a donc pas à porter le détail.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 5. ONLINE CHAT (HERO) ============ -->
+    <div data-screen-label="05 Online chat" style="width:624px;max-width:100%;">
+      <div style="display:inline-block;background:#2FB86E;color:#fff;font-weight:900;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;padding:5px 11px;border-radius:8px;border:2px solid #241F1A;margin-bottom:10px;">Écran clé</div>
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#0B1836;background-image:linear-gradient(rgba(11,24,54,.55),rgba(11,24,54,.82)),url('assets/world-chat-bg.png');background-size:cover,cover;background-position:center,center bottom;display:flex;flex-direction:column;">
+            <div style="height:24px;background:#241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <img src="assets/icons/global.svg" alt="" style="width:14px;height:14px;filter:brightness(0) invert(1);">
+                <div style="font-size:12px;font-weight:900;color:#fff;">Salon global</div>
+                <div style="background:#2FB86E;color:#fff;font-size:8px;font-weight:900;padding:2px 6px;border-radius:5px;">128</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);padding:3px 7px;border-radius:6px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#F7941E;"></div>
+                <div style="font-size:9px;font-weight:900;color:#FFD98A;">Sync · 4 s</div>
+              </div>
+            </div>
+            <div style="flex:1;padding:9px 10px;display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
+              <div style="display:flex;gap:6px;align-items:flex-end;">
+                <img src="assets/default_profile.png" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">
+                <div style="max-width:250px;">
+                  <div style="font-size:8px;font-weight:900;color:#B9CBEA;margin-bottom:2px;">Tom_64</div>
+                  <div style="background:rgba(9,20,46,.78);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:11px 11px 11px 3px;">quelqu'un pour un MK7 ce soir ?</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:flex-end;">
+                <img src="assets/mii2.png" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">
+                <div style="max-width:250px;">
+                  <div style="font-size:8px;font-weight:900;color:#B9CBEA;margin-bottom:2px;">Léa</div>
+                  <div style="background:rgba(9,20,46,.78);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:11px 11px 11px 3px;">
+                    <div style="width:18px;height:18px;border-radius:50%;background:#37A8EE;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;">▶</div>
+                    <div style="display:flex;align-items:center;gap:2px;height:14px;"><div style="width:2px;height:5px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:10px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:14px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:8px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:12px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:6px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:9px;background:#93A9D0;border-radius:1px;"></div><div style="width:2px;height:4px;background:#93A9D0;border-radius:1px;"></div></div>
+                    <div style="font-size:10px;font-weight:900;color:#fff;">0:07</div>
+                  </div>
+                </div>
+              </div>
+              <div style="align-self:flex-end;max-width:250px;">
+                <div style="background:#2FB86E;color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:11px 11px 3px 11px;">moi je suis chaud, 20 h ?</div>
+                <div style="text-align:right;font-size:8px;font-weight:900;color:#B9CBEA;margin-top:2px;">16:24 · envoyé</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="padding:8px 10px;border-bottom:2px solid #E0D3BB;">
+              <div style="font-size:9px;font-weight:900;color:#6B6357;letter-spacing:1px;margin-bottom:5px;">ALLER À</div>
+              <div style="display:flex;gap:8px;">
+                <div style="width:40px;text-align:center;"><div style="width:34px;height:34px;border-radius:50%;border:3px solid #F7941E;margin:0 auto;background:#fff;display:flex;align-items:center;justify-content:center;"><img src="assets/icons/global.svg" alt="" style="width:18px;height:18px;"></div><div style="font-size:8px;font-weight:900;margin-top:2px;">Global</div></div>
+                <div style="width:40px;text-align:center;"><img src="assets/mii2.png" alt="" style="width:34px;height:34px;border-radius:50%;border:2px solid #241F1A;object-fit:cover;"><div style="font-size:8px;font-weight:900;margin-top:2px;">Léa</div></div>
+                <div style="width:40px;text-align:center;"><img src="assets/default_profile.png" alt="" style="width:34px;height:34px;border-radius:50%;border:2px solid #241F1A;object-fit:cover;"><div style="font-size:8px;font-weight:900;margin-top:2px;">Tom</div></div>
+                <div style="width:40px;text-align:center;"><div style="width:34px;height:34px;border-radius:50%;border:2px dashed #B9AE9E;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#B9AE9E;">+</div><div style="font-size:8px;font-weight:900;margin-top:2px;color:#8a8076;">Nouv.</div></div>
+              </div>
+            </div>
+            <div style="flex:1;padding:9px 10px;display:flex;flex-direction:column;gap:7px;">
+              <div style="height:44px;background:#fff;border:3px solid #2FB86E;border-radius:11px;display:flex;align-items:center;padding:0 10px;font-size:13px;font-weight:800;color:#241F1A;">20 h ça marche<span style="color:#2FB86E;">|</span></div>
+              <div style="display:flex;gap:7px;">
+                <div style="flex:1;height:36px;background:#fff;border:2px solid #241F1A;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:900;">🙂 Émoji</div>
+                <div style="flex:1;height:36px;background:#37A8EE;border:2px solid #241F1A;border-radius:10px;box-shadow:0 3px 0 #1a6899;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:900;color:#fff;">Voix</div>
+                <div style="flex:1.2;height:36px;background:#2FB86E;border:2px solid #241F1A;border-radius:10px;box-shadow:0 3px 0 #145c36;display:flex;align-items:center;justify-content:center;gap:6px;">
+                  <img src="assets/icons/send.svg" alt="" style="width:15px;height:15px;filter:brightness(0) invert(1);">
+                  <div style="font-size:12px;font-weight:900;color:#fff;">ENVOYER</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:28px;background:#EBDFC9;border-top:2px solid #241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+              <div style="font-size:10px;font-weight:900;">B · Retour</div>
+              <div style="font-size:10px;font-weight:900;color:#6B6357;">Y · Actualiser</div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">05 · En ligne — conversation</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">L'historique occupe tout l'écran du haut ; le tactile ne sert qu'à écrire et changer de contact. Le polling est assumé — « Sync · 4 s » décompte jusqu'au prochain appel, Y le force.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 6. LOCAL LOBBY ============ -->
+    <div data-screen-label="06 Local lobby" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#37A8EE;background-image:radial-gradient(rgba(255,255,255,.28) 1.5px,transparent 1.5px);background-size:14px 14px;display:flex;align-items:center;gap:16px;padding:16px;">
+            <div style="width:150px;height:150px;border-radius:50%;border:3px solid #fff;position:relative;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);">
+              <div style="position:absolute;width:100px;height:100px;border-radius:50%;border:2px solid rgba(255,255,255,.6);"></div>
+              <div style="position:absolute;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.6);"></div>
+              <div style="width:20px;height:20px;border-radius:50%;background:#241F1A;border:2px solid #fff;"></div>
+              <div style="position:absolute;top:26px;left:96px;width:14px;height:14px;border-radius:50%;background:#2FB86E;border:2px solid #241F1A;"></div>
+              <div style="position:absolute;top:92px;left:26px;width:14px;height:14px;border-radius:50%;background:#F7941E;border:2px solid #241F1A;"></div>
+              <div style="position:absolute;top:112px;left:100px;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #241F1A;"></div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.8px;text-shadow:0 3px 0 #1a6899;">3 salons à proximité</div>
+              <div style="font-size:11px;font-weight:800;color:#e3f3ff;margin-top:3px;line-height:1.4;">Le sans-fil local est activé. Pas d'internet, pas de compte — juste les consoles autour.</div>
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
+                <div style="background:#241F1A;color:#fff;font-size:10px;font-weight:900;padding:4px 8px;border-radius:6px;display:inline-block;width:fit-content;">RÉCRÉ · 4 joueurs · bon signal</div>
+                <div style="background:rgba(36,31,26,.6);color:#fff;font-size:10px;font-weight:900;padding:4px 8px;border-radius:6px;width:fit-content;">Salle B12 · 2 joueurs · verrouillé</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;padding:10px;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:11px;font-weight:900;letter-spacing:.8px;">SALONS À PROXIMITÉ</div>
+              <div style="display:flex;align-items:center;gap:4px;background:#fff;border:2px solid #241F1A;border-radius:8px;padding:3px 7px;"><img src="assets/icons/return.svg" alt="" style="width:11px;height:11px;"><div style="font-size:9px;font-weight:900;">Scanner</div></div>
+            </div>
+            <div style="height:40px;background:#fff;border:3px solid #37A8EE;border-radius:11px;display:flex;align-items:center;gap:8px;padding:0 9px;">
+              <img src="assets/mii1.png" alt="" style="width:26px;height:26px;border-radius:8px;object-fit:cover;">
+              <div style="flex:1;"><div style="font-size:13px;font-weight:900;">RÉCRÉ</div><div style="font-size:9px;font-weight:800;color:#6B6357;">hébergé par Kévin</div></div>
+              <div style="background:#2FB86E;color:#fff;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;">4/8</div>
+            </div>
+            <div style="height:40px;background:#fff;border:2px solid #241F1A;border-radius:11px;display:flex;align-items:center;gap:8px;padding:0 9px;">
+              <img src="assets/default_profile.png" alt="" style="width:26px;height:26px;border-radius:8px;object-fit:cover;">
+              <div style="flex:1;"><div style="font-size:13px;font-weight:900;">Salle B12 🔒</div><div style="font-size:9px;font-weight:800;color:#6B6357;">code requis</div></div>
+              <div style="background:#EBDFC9;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;">2/8</div>
+            </div>
+            <div style="height:40px;background:#fff;border:2px solid #241F1A;border-radius:11px;display:flex;align-items:center;gap:8px;padding:0 9px;opacity:.65;">
+              <div style="width:26px;height:26px;border-radius:8px;background:#EBDFC9;"></div>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:900;">Bus 42</div><div style="font-size:9px;font-weight:800;color:#6B6357;">signal faible</div></div>
+              <div style="background:#EBDFC9;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;">1/8</div>
+            </div>
+            <div style="margin-top:auto;height:42px;background:#2FB86E;border:3px solid #241F1A;border-radius:12px;box-shadow:0 5px 0 #145c36;display:flex;align-items:center;justify-content:center;gap:7px;">
+              <img src="assets/icons/add.svg" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);">
+              <div style="font-size:15px;font-weight:900;color:#fff;">CRÉER UN SALON</div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">06 · Sans-fil local — salon d'accueil</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Le radar du haut donne la portée d'un coup d'œil ; en bas, trois lignes de 40 px et un bouton de création impossible à rater.</div>
+        </div>
+      </sc-if>
+    </div>
+
+
+    <!-- ============ 6b. CREATE ROOM ============ -->
+    <div data-screen-label="06b Create room" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#37A8EE;background-image:radial-gradient(rgba(255,255,255,.28) 1.5px,transparent 1.5px);background-size:14px 14px;padding:14px;display:flex;flex-direction:column;gap:9px;">
+            <div style="font-size:10px;font-weight:900;color:#fff;letter-spacing:1.2px;">APERÇU DE TON SALON</div>
+            <div style="background:#fff;border:3px solid #241F1A;border-radius:13px;box-shadow:4px 4px 0 #1a6899;padding:10px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:9px;">
+                <img src="assets/mii1.png" alt="" style="width:34px;height:34px;border-radius:10px;object-fit:cover;border:2px solid #241F1A;">
+                <div style="flex:1;">
+                  <div style="font-size:17px;font-weight:900;letter-spacing:-.4px;">RÉCRÉ</div>
+                  <div style="font-size:9px;font-weight:800;color:#6B6357;">hébergé par Kévin</div>
+                </div>
+                <div style="background:#2FB86E;color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:6px;">1/8</div>
+              </div>
+              <div style="display:flex;gap:4px;">
+                <img src="assets/mii1.png" alt="" style="width:26px;height:24px;border-radius:6px;object-fit:cover;border:2px solid #241F1A;">
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+                <div style="width:26px;height:24px;border:2px dashed #B9AE9E;border-radius:6px;"></div>
+              </div>
+              <div style="display:flex;gap:5px;">
+                <div style="background:#EBDFC9;font-size:9px;font-weight:900;padding:3px 7px;border-radius:5px;">Ouvert · sans code</div>
+                <div style="background:#EBDFC9;font-size:9px;font-weight:900;padding:3px 7px;border-radius:5px;">Texte · Dessin · Voix</div>
+                <div style="background:#EBDFC9;font-size:9px;font-weight:900;padding:3px 7px;border-radius:5px;">portée ~20 m</div>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:800;color:#fff;line-height:1.35;">Toutes les consoles qui scannent autour voient cette carte tant que le salon est ouvert.</div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="height:24px;background:#241F1A;display:flex;align-items:center;padding:0 10px;">
+              <div style="font-size:12px;font-weight:900;color:#fff;">Créer un salon</div>
+            </div>
+            <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:7px;">
+              <div>
+                <div style="height:11px;font-size:9px;font-weight:900;letter-spacing:.8px;color:#2FB86E;">NOM DU SALON · appui = clavier</div>
+                <div style="height:30px;margin-top:2px;background:#fff;border:3px solid #2FB86E;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+                  <div style="font-size:14px;font-weight:900;">RÉCRÉ<span style="color:#2FB86E;">|</span></div>
+                  <div style="font-size:9px;font-weight:800;color:#8a8076;">5/12</div>
+                </div>
+              </div>
+              <div>
+                <div style="height:12px;font-size:9px;font-weight:900;letter-spacing:.8px;color:#6B6357;">PLACES</div>
+                <div style="height:28px;margin-top:2px;display:flex;gap:6px;">
+                  <div style="flex:1;background:#fff;border:2px solid #241F1A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;">4</div>
+                  <div style="flex:1;background:#241F1A;color:#fff;border:2px solid #241F1A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;">8</div>
+                  <div style="flex:1;background:#fff;border:2px solid #241F1A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;">16</div>
+                </div>
+              </div>
+              <div>
+                <div style="height:12px;font-size:9px;font-weight:900;letter-spacing:.8px;color:#6B6357;">CODE D'ACCÈS</div>
+                <div style="height:28px;margin-top:2px;display:flex;align-items:center;gap:8px;">
+                  <div style="width:34px;height:19px;border-radius:10px;background:#EBDFC9;border:2px solid #241F1A;display:flex;align-items:center;padding:0 2px;"><div style="width:13px;height:13px;border-radius:50%;background:#fff;border:1px solid #241F1A;"></div></div>
+                  <div style="display:flex;gap:4px;opacity:.45;">
+                    <div style="width:22px;height:26px;border:2px solid #241F1A;border-radius:6px;background:#fff;"></div>
+                    <div style="width:22px;height:26px;border:2px solid #241F1A;border-radius:6px;background:#fff;"></div>
+                    <div style="width:22px;height:26px;border:2px solid #241F1A;border-radius:6px;background:#fff;"></div>
+                    <div style="width:22px;height:26px;border:2px solid #241F1A;border-radius:6px;background:#fff;"></div>
+                  </div>
+                  <div style="font-size:9px;font-weight:800;color:#8a8076;line-height:1.2;">désactivé — tout le monde à portée peut entrer</div>
+                </div>
+              </div>
+              <div style="height:40px;background:#2FB86E;border:3px solid #241F1A;border-radius:11px;box-shadow:0 5px 0 #145c36;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;">CRÉER LE SALON</div>
+              <div style="font-size:9px;font-weight:800;color:#8a8076;text-align:center;">B · Retour au lobby</div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">06b · Sans-fil local — créer un salon</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Quatre décisions, sans défilement : nom, taille, code, go. L'écran du haut montre exactement la carte que verront les autres consoles.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 6c. MANAGE ROOM ============ -->
+    <div data-screen-label="06c Manage room" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="height:24px;background:#37A8EE;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <img src="assets/icons/multiplayer.svg" alt="" style="width:14px;height:14px;filter:brightness(0) invert(1);">
+                <div style="font-size:12px;font-weight:900;color:#fff;">RÉCRÉ</div>
+                <div style="background:#241F1A;color:#fff;font-size:8px;font-weight:900;padding:2px 6px;border-radius:5px;">TON SALON</div>
+              </div>
+              <div style="font-size:9px;font-weight:900;color:#fff;">ouvert 4 min</div>
+            </div>
+            <div style="flex:1;padding:11px 12px;display:flex;gap:11px;">
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:9px;font-weight:900;letter-spacing:1px;color:#6B6357;">DANS LE SALON</div>
+                <div style="display:flex;gap:6px;">
+                  <div style="text-align:center;width:44px;"><img src="assets/mii1.png" alt="" style="width:40px;height:40px;border-radius:12px;object-fit:cover;border:3px solid #2FB86E;"><div style="font-size:9px;font-weight:900;margin-top:2px;">Kévin</div></div>
+                  <div style="text-align:center;width:44px;"><img src="assets/mii2.png" alt="" style="width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid #241F1A;"><div style="font-size:9px;font-weight:900;margin-top:2px;">Léa</div></div>
+                  <div style="text-align:center;width:44px;"><img src="assets/default_profile.png" alt="" style="width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid #241F1A;"><div style="font-size:9px;font-weight:900;margin-top:2px;">Tom_64</div></div>
+                  <div style="text-align:center;width:44px;"><img src="assets/default_profile.png" alt="" style="width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid #241F1A;opacity:.55;"><div style="font-size:9px;font-weight:800;margin-top:2px;color:#8a8076;">Maya</div></div>
+                </div>
+                <div style="display:flex;gap:5px;margin-top:2px;">
+                  <div style="background:#EBDFC9;font-size:9px;font-weight:900;padding:3px 7px;border-radius:5px;">23 messages</div>
+                  <div style="background:#EBDFC9;font-size:9px;font-weight:900;padding:3px 7px;border-radius:5px;">bon signal</div>
+                </div>
+              </div>
+              <div style="width:132px;background:#F7941E;border:3px solid #241F1A;border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:5px;justify-content:center;">
+                <div style="font-size:9px;font-weight:900;color:#241F1A;letter-spacing:.8px;">DEMANDE D'ENTRÉE</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <img src="assets/default_profile.png" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid #241F1A;">
+                  <div style="font-size:13px;font-weight:900;color:#fff;">Maya</div>
+                </div>
+                <div style="font-size:9px;font-weight:800;color:#3d2a0d;line-height:1.3;">Déjà sortie de portée deux fois — accepte pour la faire entrer.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="height:24px;background:#241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+              <div style="font-size:12px;font-weight:900;color:#fff;">Gérer RÉCRÉ</div>
+              <div style="font-size:9px;font-weight:900;color:#B9AE9E;">hôte seulement</div>
+            </div>
+            <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;">
+              <div style="height:40px;background:#F7941E;border:2px solid #241F1A;border-radius:10px;display:flex;align-items:center;gap:7px;padding:0 8px;">
+                <img src="assets/default_profile.png" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:2px solid #241F1A;">
+                <div style="flex:1;font-size:11px;font-weight:900;color:#fff;line-height:1.15;">Maya veut entrer</div>
+                <div style="background:#2FB86E;color:#fff;border:2px solid #241F1A;border-radius:7px;font-size:10px;font-weight:900;padding:4px 8px;">ACCEPTER</div>
+                <div style="background:#fff;border:2px solid #241F1A;border-radius:7px;font-size:10px;font-weight:900;padding:4px 8px;">REFUSER</div>
+              </div>
+              <div style="height:30px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;gap:7px;padding:0 8px;">
+                <img src="assets/mii2.png" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">
+                <div style="flex:1;font-size:12px;font-weight:900;">Léa</div>
+                <div style="background:#EBDFC9;border:1.5px solid #241F1A;border-radius:6px;font-size:9px;font-weight:900;padding:3px 7px;">MUET</div>
+                <div style="background:#fff;border:1.5px solid #EF4444;color:#EF4444;border-radius:6px;font-size:9px;font-weight:900;padding:3px 7px;">EXPULSER</div>
+              </div>
+              <div style="height:30px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;gap:7px;padding:0 8px;">
+                <img src="assets/default_profile.png" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">
+                <div style="flex:1;font-size:12px;font-weight:900;">Tom_64</div>
+                <div style="background:#241F1A;color:#fff;border:1.5px solid #241F1A;border-radius:6px;font-size:9px;font-weight:900;padding:3px 7px;">MUET</div>
+                <div style="background:#fff;border:1.5px solid #EF4444;color:#EF4444;border-radius:6px;font-size:9px;font-weight:900;padding:3px 7px;">EXPULSER</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:auto;">
+                <div style="flex:1;height:34px;background:#fff;border:2px solid #241F1A;border-radius:9px;box-shadow:0 3px 0 #241F1A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;">Inviter autour</div>
+                <div style="flex:1;height:34px;background:#EF4444;border:2px solid #241F1A;border-radius:9px;box-shadow:0 3px 0 #8c1f1f;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;">Fermer le salon</div>
+              </div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">06c · Sans-fil local — contrôles de l'hôte</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Seul l'hôte voit ce panneau ; les invités ont le salon de discussion. Les demandes arrivent en bandeau et non en fenêtre, pour ne jamais bloquer un salon actif.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 7a. LOCAL CHATROOM — DRAW (HERO) ============ -->
+    <div data-screen-label="07 Local chatroom draw" style="width:624px;max-width:100%;">
+      <div style="display:inline-block;background:#2FB86E;color:#fff;font-weight:900;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;padding:5px 11px;border-radius:8px;border:2px solid #241F1A;margin-bottom:10px;">Écran clé · mode dessin</div>
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="height:24px;background:#37A8EE;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <img src="assets/icons/multiplayer.svg" alt="" style="width:14px;height:14px;filter:brightness(0) invert(1);">
+                <div style="font-size:12px;font-weight:900;color:#fff;">RÉCRÉ</div>
+                <div style="background:#241F1A;color:#fff;font-size:8px;font-weight:900;padding:2px 6px;border-radius:5px;">SANS-FIL LOCAL</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <img src="assets/mii1.png" alt="" style="width:15px;height:15px;border-radius:50%;object-fit:cover;border:1px solid #fff;">
+                <img src="assets/mii2.png" alt="" style="width:15px;height:15px;border-radius:50%;object-fit:cover;border:1px solid #fff;margin-left:-5px;">
+                <img src="assets/default_profile.png" alt="" style="width:15px;height:15px;border-radius:50%;object-fit:cover;border:1px solid #fff;margin-left:-5px;">
+                <div style="font-size:9px;font-weight:900;color:#fff;margin-left:3px;">4 ici</div>
+              </div>
+            </div>
+            <div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
+              <div style="display:flex;gap:6px;align-items:flex-end;">
+                <img src="assets/default_profile.png" alt="" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:2px solid #241F1A;">
+                <div style="background:#fff;border:2px solid #241F1A;color:#241F1A;font-size:12px;font-weight:800;padding:6px 9px;border-radius:10px 10px 10px 2px;">Tom_64 : t'es où ?</div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:flex-end;">
+                <img src="assets/mii2.png" alt="" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:2px solid #241F1A;">
+                <div style="background:#fff;border:2px solid #241F1A;border-radius:10px 10px 10px 2px;padding:4px;">
+                  <svg width="120" height="52" viewBox="0 0 120 52" style="display:block;">
+                    <rect width="120" height="52" fill="#fff"></rect>
+                    <path d="M8 40 C 20 8, 44 8, 54 40" stroke="#37A8EE" stroke-width="3" fill="none" stroke-linecap="round"></path>
+                    <circle cx="26" cy="24" r="3" fill="#241F1A"></circle>
+                    <circle cx="40" cy="24" r="3" fill="#241F1A"></circle>
+                    <path d="M24 32 Q 33 39 42 32" stroke="#EF4444" stroke-width="3" fill="none" stroke-linecap="round"></path>
+                    <path d="M70 12 L 70 42 M 70 12 L 96 12 M 70 27 L 90 27" stroke="#241F1A" stroke-width="3" fill="none" stroke-linecap="round"></path>
+                    <path d="M100 38 l 6 6 l 12 -16" stroke="#2FB86E" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </div>
+              </div>
+              <div style="align-self:flex-end;display:flex;align-items:center;gap:7px;background:#2FB86E;border:2px solid #241F1A;padding:5px 9px;border-radius:10px 10px 2px 10px;">
+                <div style="width:17px;height:17px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#2FB86E;">▶</div>
+                <div style="display:flex;align-items:center;gap:2px;height:13px;"><div style="width:2px;height:6px;background:#d8f5e6;border-radius:1px;"></div><div style="width:2px;height:11px;background:#d8f5e6;border-radius:1px;"></div><div style="width:2px;height:13px;background:#d8f5e6;border-radius:1px;"></div><div style="width:2px;height:7px;background:#d8f5e6;border-radius:1px;"></div><div style="width:2px;height:10px;background:#d8f5e6;border-radius:1px;"></div><div style="width:2px;height:5px;background:#d8f5e6;border-radius:1px;"></div></div>
+                <div style="font-size:10px;font-weight:900;color:#fff;">0:03</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#EBDFC9;display:flex;flex-direction:column;">
+            <div style="display:flex;height:28px;border-bottom:3px solid #241F1A;">
+              <div style="flex:1;background:#EBDFC9;color:#6B6357;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:4px;">TEXTE</div>
+              <div style="flex:1;background:#241F1A;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:4px;">DESSIN</div>
+              <div style="flex:1;background:#EBDFC9;color:#6B6357;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:4px;">VOIX</div>
+            </div>
+            <div style="flex:1;padding:7px;display:flex;gap:7px;">
+              <div style="flex:1;background:#fff;border:2px solid #241F1A;border-radius:8px;position:relative;overflow:hidden;">
+                <svg width="100%" height="100%" viewBox="0 0 230 160" preserveAspectRatio="none">
+                  <path d="M20 120 C 45 30, 110 25, 130 115" stroke="#F7941E" stroke-width="7" fill="none" stroke-linecap="round"></path>
+                  <path d="M150 40 l 30 30 M180 40 l -30 30" stroke="#EF4444" stroke-width="7" fill="none" stroke-linecap="round"></path>
+                  <path d="M150 110 q 20 25 40 0" stroke="#37A8EE" stroke-width="7" fill="none" stroke-linecap="round"></path>
+                </svg>
+                <div style="position:absolute;bottom:4px;left:6px;font-size:8px;font-weight:900;color:#B9AE9E;">dessine au stylet</div>
+              </div>
+              <div style="width:78px;display:flex;flex-direction:column;gap:5px;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+                  <div style="height:22px;background:#241F1A;border:2px solid #241F1A;border-radius:6px;box-shadow:inset 0 0 0 2px #fff;"></div>
+                  <div style="height:22px;background:#EF4444;border:2px solid #241F1A;border-radius:6px;"></div>
+                  <div style="height:22px;background:#F7941E;border:2px solid #241F1A;border-radius:6px;"></div>
+                  <div style="height:22px;background:#2FB86E;border:2px solid #241F1A;border-radius:6px;"></div>
+                  <div style="height:22px;background:#37A8EE;border:2px solid #241F1A;border-radius:6px;"></div>
+                  <div style="height:22px;background:#fff;border:2px solid #241F1A;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">GOM</div>
+                </div>
+                <div style="display:flex;gap:4px;align-items:center;justify-content:space-between;background:#fff;border:2px solid #241F1A;border-radius:6px;padding:4px 6px;">
+                  <div style="width:4px;height:4px;border-radius:50%;background:#241F1A;"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:#241F1A;outline:2px solid #2FB86E;outline-offset:2px;"></div>
+                  <div style="width:13px;height:13px;border-radius:50%;background:#241F1A;"></div>
+                </div>
+                <div style="height:22px;background:#fff;border:2px solid #241F1A;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;">EFFACER</div>
+                <div style="flex:1;background:#2FB86E;border:2px solid #241F1A;border-radius:8px;box-shadow:0 3px 0 #145c36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                  <img src="assets/icons/send.svg" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);">
+                  <div style="font-size:11px;font-weight:900;color:#fff;">ENVOYER</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:24px;background:#241F1A;display:flex;align-items:center;justify-content:space-between;padding:0 9px;">
+              <div style="font-size:9px;font-weight:900;color:#fff;">B · Quitter le salon</div>
+              <div style="font-size:9px;font-weight:900;color:#B9AE9E;">L/R · changer de mode</div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">07 · Sans-fil local — salon (dessin)</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">Un seul bandeau d'onglets gère les trois modes, la zone de dessin garde tout le reste. Cinq couleurs, une gomme, trois épaisseurs — l'inventaire de PictoChat, la palette de Dingplay. Les gâchettes changent de mode sans lâcher le stylet.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 7b. LOCAL CHATROOM — VOICE + TYPE ============ -->
+    <div data-screen-label="07b Chatroom input modes" style="width:624px;max-width:100%;">
+      <div style="display:inline-block;background:#37A8EE;color:#fff;font-weight:900;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;padding:5px 11px;border-radius:8px;border:2px solid #241F1A;margin-bottom:10px;">Même salon · les deux autres modes</div>
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;">
+            <div style="flex:1;border-right:2px dashed #C9BCA4;padding:9px;display:flex;flex-direction:column;">
+              <div style="font-size:9px;font-weight:900;letter-spacing:1px;color:#6B6357;">ÉCRAN TACTILE · MODE VOIX</div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+                <div style="width:160px;height:120px;background:#EBDFC9;border:2px solid #241F1A;border-radius:8px;padding:7px;display:flex;flex-direction:column;gap:6px;">
+                  <div style="display:flex;height:16px;border:1.5px solid #241F1A;border-radius:4px;overflow:hidden;">
+                    <div style="flex:1;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#6B6357;">TEXTE</div>
+                    <div style="flex:1;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#6B6357;">DESSIN</div>
+                    <div style="flex:1;background:#241F1A;color:#fff;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;">VOIX</div>
+                  </div>
+                  <div style="flex:1;background:#fff;border:1.5px solid #241F1A;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:1.5px;height:20px;"><div style="width:2px;height:6px;background:#EF4444;"></div><div style="width:2px;height:13px;background:#EF4444;"></div><div style="width:2px;height:20px;background:#EF4444;"></div><div style="width:2px;height:9px;background:#EF4444;"></div><div style="width:2px;height:16px;background:#EF4444;"></div><div style="width:2px;height:20px;background:#EF4444;"></div><div style="width:2px;height:7px;background:#EF4444;"></div><div style="width:2px;height:12px;background:#EF4444;"></div><div style="width:2px;height:18px;background:#EF4444;"></div><div style="width:2px;height:5px;background:#EF4444;"></div></div>
+                    <div style="font-size:9px;font-weight:900;">0:04 / 0:10</div>
+                    <div style="display:flex;gap:4px;">
+                      <div style="background:#EF4444;color:#fff;font-size:8px;font-weight:900;padding:3px 7px;border-radius:5px;border:1.5px solid #241F1A;">● STOP</div>
+                      <div style="background:#fff;font-size:8px;font-weight:900;padding:3px 7px;border-radius:5px;border:1.5px solid #241F1A;">ANNULER</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:9px;font-weight:800;color:#5a5149;line-height:1.3;">Maintiens pour enregistrer, relâche pour réécouter. 10 s maxi pour rester léger en sans-fil local.</div>
+            </div>
+            <div style="flex:1;padding:9px;display:flex;flex-direction:column;">
+              <div style="font-size:9px;font-weight:900;letter-spacing:1px;color:#6B6357;">ÉCRAN TACTILE · MODE TEXTE</div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+                <div style="width:160px;height:120px;background:#EBDFC9;border:2px solid #241F1A;border-radius:8px;padding:7px;display:flex;flex-direction:column;gap:6px;">
+                  <div style="display:flex;height:16px;border:1.5px solid #241F1A;border-radius:4px;overflow:hidden;">
+                    <div style="flex:1;background:#241F1A;color:#fff;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;">TEXTE</div>
+                    <div style="flex:1;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#6B6357;">DESSIN</div>
+                    <div style="flex:1;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#6B6357;">VOIX</div>
+                  </div>
+                  <div style="height:26px;background:#fff;border:1.5px solid #2FB86E;border-radius:5px;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:800;">j'arrive<span style="color:#2FB86E;">|</span></div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <div style="background:#fff;border:1.5px solid #241F1A;border-radius:5px;font-size:8px;font-weight:900;padding:3px 5px;">ok</div>
+                    <div style="background:#fff;border:1.5px solid #241F1A;border-radius:5px;font-size:8px;font-weight:900;padding:3px 5px;">😂</div>
+                    <div style="background:#fff;border:1.5px solid #241F1A;border-radius:5px;font-size:8px;font-weight:900;padding:3px 5px;">2 min</div>
+                  </div>
+                  <div style="margin-top:auto;height:22px;background:#2FB86E;border:1.5px solid #241F1A;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;">ENVOYER</div>
+                </div>
+              </div>
+              <div style="font-size:9px;font-weight:800;color:#5a5149;line-height:1.3;">Un appui sur le champ ouvre le clavier système ; les réponses rapides évitent d'y passer.</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#EBDFC9;display:flex;flex-direction:column;">
+            <div style="display:flex;height:28px;border-bottom:3px solid #241F1A;">
+              <div style="flex:1;background:#EBDFC9;color:#6B6357;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;">TEXTE</div>
+              <div style="flex:1;background:#EBDFC9;color:#6B6357;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;">DESSIN</div>
+              <div style="flex:1;background:#241F1A;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;">VOIX</div>
+            </div>
+            <div style="flex:1;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+              <div style="display:flex;align-items:center;gap:3px;height:36px;">
+                <div style="width:4px;height:10px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:21px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:33px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:15px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:27px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:36px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:12px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:24px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:31px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:8px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:18px;background:#EF4444;border-radius:2px;"></div>
+                <div style="width:4px;height:29px;background:#EF4444;border-radius:2px;"></div>
+              </div>
+              <div style="font-size:14px;font-weight:900;">0:04 <span style="color:#6B6357;">/ 0:10</span></div>
+              <div style="width:76px;height:76px;border-radius:50%;background:#EF4444;border:4px solid #241F1A;box-shadow:0 5px 0 #8c1f1f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;"></div>
+                <div style="font-size:11px;font-weight:900;color:#fff;letter-spacing:.5px;">RELÂCHER</div>
+              </div>
+              <div style="display:flex;gap:9px;">
+                <div style="background:#fff;border:2px solid #241F1A;border-radius:9px;font-size:11px;font-weight:900;padding:6px 14px;">ANNULER</div>
+                <div style="background:#2FB86E;color:#fff;border:2px solid #241F1A;border-radius:9px;box-shadow:0 3px 0 #145c36;font-size:11px;font-weight:900;padding:6px 14px;">ENVOYER</div>
+              </div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">07b · Modes texte et voix</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">L'écran du haut est ici une planche de référence, pas un état réel — il montre les deux autres modes du tactile face à l'écran d'enregistrement du dessous.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ============ 8. VOICE MESSAGE ELEMENT ============ -->
+    <div data-screen-label="08 Voice element" style="width:624px;max-width:100%;">
+      <div style="background:#fff;border:3px solid #241F1A;border-radius:20px;box-shadow:8px 8px 0 #241F1A;padding:22px;">
+        <div style="font-size:22px;font-weight:900;letter-spacing:-.5px;">08 · Élément message vocal</div>
+        <div style="font-size:13px;font-weight:700;color:#5a5149;margin-top:4px;line-height:1.45;">Dessiné à 3× la taille réelle. Sur la console la bulle fait 17 px de haut — lecture, forme d'onde à huit barres, durée. Rien d'autre ne rentre, rien d'autre n'est utile.</div>
+
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:96px;font-size:11px;font-weight:900;letter-spacing:1px;color:#6B6357;">REÇU</div>
+            <div style="display:flex;align-items:center;gap:18px;background:#fff;border:2px solid #241F1A;padding:14px 20px;border-radius:26px 26px 26px 8px;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#37A8EE;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">▶</div>
+              <div style="display:flex;align-items:center;gap:5px;height:34px;"><div style="width:5px;height:12px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:24px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:34px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:19px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:29px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:14px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:22px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:10px;background:#B9AE9E;border-radius:3px;"></div></div>
+              <div style="font-size:20px;font-weight:900;color:#241F1A;">0:07</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:96px;font-size:11px;font-weight:900;letter-spacing:1px;color:#6B6357;">LECTURE</div>
+            <div style="display:flex;align-items:center;gap:18px;background:#fff;border:2px solid #241F1A;padding:14px 20px;border-radius:26px 26px 26px 8px;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#F7941E;display:flex;align-items:center;justify-content:center;gap:4px;"><div style="width:5px;height:18px;background:#fff;"></div><div style="width:5px;height:18px;background:#fff;"></div></div>
+              <div style="display:flex;align-items:center;gap:5px;height:34px;"><div style="width:5px;height:12px;background:#F7941E;border-radius:3px;"></div><div style="width:5px;height:24px;background:#F7941E;border-radius:3px;"></div><div style="width:5px;height:34px;background:#F7941E;border-radius:3px;"></div><div style="width:5px;height:19px;background:#F7941E;border-radius:3px;"></div><div style="width:5px;height:29px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:14px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:22px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:10px;background:#B9AE9E;border-radius:3px;"></div></div>
+              <div style="font-size:20px;font-weight:900;color:#241F1A;">0:03</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:96px;font-size:11px;font-weight:900;letter-spacing:1px;color:#6B6357;">ENVOYÉ</div>
+            <div style="display:flex;align-items:center;gap:18px;background:#2FB86E;border:3px solid #241F1A;padding:14px 20px;border-radius:26px 26px 8px 26px;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#2FB86E;font-size:18px;">▶</div>
+              <div style="display:flex;align-items:center;gap:5px;height:34px;"><div style="width:5px;height:14px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:27px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:34px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:16px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:25px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:11px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:20px;background:#d8f5e6;border-radius:3px;"></div><div style="width:5px;height:9px;background:#d8f5e6;border-radius:3px;"></div></div>
+              <div style="font-size:20px;font-weight:900;color:#fff;">0:04</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:96px;font-size:11px;font-weight:900;letter-spacing:1px;color:#6B6357;">NON ÉCOUTÉ</div>
+            <div style="display:flex;align-items:center;gap:18px;background:#fff;border:2px solid #241F1A;padding:14px 20px;border-radius:26px 26px 26px 8px;box-shadow:inset 0 0 0 3px #F7941E;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#37A8EE;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">▶</div>
+              <div style="display:flex;align-items:center;gap:5px;height:34px;"><div style="width:5px;height:16px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:30px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:22px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:34px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:13px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:26px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:18px;background:#B9AE9E;border-radius:3px;"></div><div style="width:5px;height:9px;background:#B9AE9E;border-radius:3px;"></div></div>
+              <div style="font-size:20px;font-weight:900;color:#241F1A;">0:09</div>
+              <div style="width:14px;height:14px;border-radius:50%;background:#F7941E;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:22px;padding-top:16px;border-top:2px dashed #C9BCA4;display:flex;gap:22px;align-items:center;flex-wrap:wrap;">
+          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:#6B6357;">TAILLE RÉELLE</div>
+          <div style="display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #241F1A;padding:5px 9px;border-radius:9px 9px 9px 3px;">
+            <div style="width:16px;height:16px;border-radius:50%;background:#37A8EE;display:flex;align-items:center;justify-content:center;color:#fff;font-size:7px;">▶</div>
+            <div style="display:flex;align-items:center;gap:2px;height:12px;"><div style="width:2px;height:4px;background:#B9AE9E;"></div><div style="width:2px;height:9px;background:#B9AE9E;"></div><div style="width:2px;height:12px;background:#B9AE9E;"></div><div style="width:2px;height:6px;background:#B9AE9E;"></div><div style="width:2px;height:10px;background:#B9AE9E;"></div><div style="width:2px;height:5px;background:#B9AE9E;"></div><div style="width:2px;height:8px;background:#B9AE9E;"></div><div style="width:2px;height:3px;background:#B9AE9E;"></div></div>
+            <div style="font-size:9px;font-weight:900;color:#241F1A;">0:07</div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:#5a5149;">Le point orange signale un vocal non écouté. La bulle entière est la cible tactile, pas seulement le rond de 16 px.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 9. SETTINGS ============ -->
+    <div data-screen-label="09 Settings" style="width:624px;max-width:100%;">
+      <div style="width:624px;height:792px;position:relative;">
+       <div style="width:416px;transform:scale(1.5);transform-origin:top left;">
+        <div style="width:416px;height:256px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:400px;height:240px;overflow:hidden;background:#fff;background-image:radial-gradient(rgba(36,31,26,.17) 1.5px,transparent 1.5px);background-size:14px 14px;animation:dpDrift 9s linear infinite;padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+            <div style="font-size:10px;font-weight:900;color:#6B6357;letter-spacing:1.2px;">COMPTE</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <img src="assets/mii1.png" alt="" style="width:54px;height:54px;border-radius:15px;border:3px solid #241F1A;object-fit:cover;background:#fff;">
+              <div>
+                <div style="font-size:18px;font-weight:900;color:#241F1A;">Kévin</div>
+                <div style="font-size:10px;font-weight:800;color:#6B6357;">@kev_ding · connecté sur cette console</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;background:#fff;border:2px solid #241F1A;border-radius:10px;padding:8px 10px;">
+                <div style="font-size:9px;font-weight:900;color:#6B6357;letter-spacing:.8px;">WI-FI</div>
+                <div style="font-size:12px;font-weight:900;color:#2FB86E;margin-top:2px;">Connecté · Livebox-4F2</div>
+              </div>
+              <div style="flex:1;background:#fff;border:2px solid #241F1A;border-radius:10px;padding:8px 10px;">
+                <div style="font-size:9px;font-weight:900;color:#6B6357;letter-spacing:.8px;">SANS-FIL LOCAL</div>
+                <div style="font-size:12px;font-weight:900;color:#37A8EE;margin-top:2px;">Activé · visible</div>
+              </div>
+            </div>
+            <div style="background:#FFF3E0;border:2px solid #241F1A;border-radius:10px;padding:8px 10px;">
+              <div style="font-size:10px;font-weight:800;color:#5a5149;line-height:1.35;">Dingplay Chat v0.1.0 · homebrew non officiel, sans lien avec Nintendo.</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:336px;height:256px;margin:16px 0 0 40px;background:#101010;border-radius:11px;padding:8px;box-shadow:0 6px 0 #241F1A;">
+          <div style="width:320px;height:240px;overflow:hidden;background:#FFF3E0;display:flex;flex-direction:column;">
+            <div style="height:28px;background:#241F1A;display:flex;align-items:center;padding:0 10px;gap:7px;">
+              <img src="assets/icons/settings.svg" alt="" style="width:14px;height:14px;filter:brightness(0) invert(1);">
+              <div style="font-size:13px;font-weight:900;color:#fff;">Réglages</div>
+            </div>
+            <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;">
+              <div style="height:32px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+                <div style="font-size:12px;font-weight:900;">Son de notification</div>
+                <div style="width:36px;height:19px;border-radius:10px;background:#2FB86E;border:2px solid #241F1A;display:flex;align-items:center;justify-content:flex-end;padding:0 2px;"><div style="width:13px;height:13px;border-radius:50%;background:#fff;"></div></div>
+              </div>
+              <div style="height:32px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+                <div style="font-size:12px;font-weight:900;">Rester visible à proximité</div>
+                <div style="width:36px;height:19px;border-radius:10px;background:#2FB86E;border:2px solid #241F1A;display:flex;align-items:center;justify-content:flex-end;padding:0 2px;"><div style="width:13px;height:13px;border-radius:50%;background:#fff;"></div></div>
+              </div>
+              <div style="height:32px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+                <div style="font-size:12px;font-weight:900;">Sync toutes les</div>
+                <div style="display:flex;gap:4px;"><div style="background:#EBDFC9;font-size:10px;font-weight:900;padding:3px 7px;border-radius:5px;">3 s</div><div style="background:#241F1A;color:#fff;font-size:10px;font-weight:900;padding:3px 7px;border-radius:5px;">5 s</div><div style="background:#EBDFC9;font-size:10px;font-weight:900;padding:3px 7px;border-radius:5px;">15 s</div></div>
+              </div>
+              <div style="height:32px;background:#fff;border:2px solid #241F1A;border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+                <div style="font-size:12px;font-weight:900;">Langue</div>
+                <div style="display:flex;gap:4px;"><div style="background:#241F1A;color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:5px;">FR</div><div style="background:#EBDFC9;font-size:10px;font-weight:900;padding:3px 8px;border-radius:5px;">EN</div></div>
+              </div>
+              <div style="margin-top:auto;height:34px;background:#EF4444;border:2px solid #241F1A;border-radius:9px;box-shadow:0 3px 0 #8c1f1f;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;">Se déconnecter</div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-à fournir-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:3px solid #241F1A;border-radius:16px;box-shadow:6px 6px 0 #241F1A;padding:14px 16px;">
+          <div style="font-weight:900;font-size:16px;">09 · Réglages</div>
+          <div style="font-weight:700;font-size:13px;color:#5a5149;line-height:1.45;margin-top:4px;">L'état est en lecture seule en haut ; seuls les interrupteurs vivent là où on touche. L'intervalle de sync est exposé parce qu'il arbitre entre batterie et sensation de direct.</div>
+        </div>
+      </sc-if>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER NOTE ===== -->
+  <div style="max-width:1320px;margin:52px auto 0;background:#241F1A;border-radius:20px;padding:26px 30px;color:#fff;">
+    <div style="font-size:20px;font-weight:900;">Ce qu'il me manque</div>
+    <div style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:14px;">
+      <div><div style="font-size:13px;font-weight:900;color:#F7941E;">Fichiers du logo</div><div style="font-size:13px;font-weight:700;color:#D8CDBF;line-height:1.45;">Icône de lancement (48 × 48) et marque du splash — les cadres en pointillés des écrans 01 et 02 gardent la place.</div></div>
+      <div><div style="font-size:13px;font-weight:900;color:#F7941E;">Source des avatars</div><div style="font-size:13px;font-weight:700;color:#D8CDBF;line-height:1.45;">Les maquettes réutilisent les photos de profil de l'app. À confirmer : la 3DS affiche-t-elle l'avatar Dingplay ou le Mii de la console ?</div></div>
+      <div><div style="font-size:13px;font-weight:900;color:#F7941E;">Police sur console</div><div style="font-size:13px;font-weight:700;color:#D8CDBF;line-height:1.45;">Nunito ici. Le homebrew a besoin d'un bitmap ou d'un TTF embarqué — à tester en 9 px avant de figer.</div></div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Presentation&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { showNotes: this.props.showNotes ?? true };
+  }
+}
+</script>
+</body>
+</html>

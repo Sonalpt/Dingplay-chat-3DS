@@ -1,0 +1,11 @@
+// Add inside `match /databases/{database}/documents { ... }` in dingconnect/firestore.rules.
+//
+// Console-exclusive themed rooms are written only by the relay (Admin SDK),
+// so no client may touch them. Without this block the default is already
+// "deny", but making it explicit documents the intent next to the other rules.
+match /consoleRooms/{roomId} {
+  allow read, write: if false;
+  match /messages/{messageId} {
+    allow read, write: if false;
+  }
+}

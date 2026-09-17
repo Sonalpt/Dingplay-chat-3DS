@@ -1,0 +1,10 @@
+build/
+*.3dsx
+*.smdh
+*.elf
+*.cia
+*.map
+romfs/*.bcfnt
+romfs/gfx/
+banner.bnr
+icon.icn
