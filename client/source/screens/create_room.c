@@ -118,7 +118,7 @@ static void draw_bottom(void) {
     ui_rrect_border(8, NAME_Y, BOT_W - 16, 30, 9, 3, C_WHITE, C_GREEN);
     ui_text_v(17, NAME_Y, 30, 14, C_INK, ALIGN_LEFT, FONT_HEAD, s_name);
     if ((int)(s_caret * 2) & 1) ui_rect(17 + ui_text_width(14, FONT_HEAD, s_name) + 1, NAME_Y + 8, 2, 14, C_GREEN);
-    char cnt[12];
+    char cnt[16];
     snprintf(cnt, sizeof(cnt), "%d/%d", utf8_len(s_name), NAME_MAX);
     ui_text_v(BOT_W - 17, NAME_Y, 30, 9, C_MUTED2, ALIGN_RIGHT, FONT_BODY, cnt);
     // slots

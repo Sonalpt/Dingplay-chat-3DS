@@ -36,7 +36,7 @@ APP_UNIQUE_ID   := 0xD1A6
 #---------------------------------------------------------------------------------
 ARCH    := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS  := -g -Wall -Wno-unused-function -O2 -mword-relocations \
+CFLAGS  := -g -Wall -Wno-unused-function -Wno-stringop-truncation -O2 -mword-relocations \
            -ffunction-sections -fdata-sections \
            $(ARCH)
 
@@ -82,6 +82,9 @@ export HFILES         := $(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_sh
                          $(addsuffix .h,$(subst .,_,$(BINFILES))) \
                          $(GFXFILES:.t3s=.h)
 
+export ROMFS_T3XFILES := $(patsubst %.t3s, $(GFXBUILD)/%.t3x, $(GFXFILES))
+export T3XHFILES      := $(patsubst %.t3s, $(BUILD)/%.h, $(GFXFILES))
+
 export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
                   $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
                   -I$(CURDIR)/$(BUILD)
@@ -117,7 +120,7 @@ FONTS := $(ROMFS)/nunito-extrabold.bcfnt $(ROMFS)/nunito-black.bcfnt
 .PHONY: all clean fonts cia
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS) fonts $(GFXFILES:.t3s=.t3x)
+all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS) fonts $(ROMFS_T3XFILES) $(T3XHFILES)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 $(BUILD):
@@ -153,7 +156,7 @@ clean:
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(TARGET).cia $(GFXBUILD) $(FONTS) banner.bnr icon.icn
 
 #---------------------------------------------------------------------------------
-%.t3x %.h: %.t3s
+$(GFXBUILD)/%.t3x $(BUILD)/%.h : %.t3s
 	@echo $(notdir $<)
 	@tex3ds -i $< -H $(BUILD)/$*.h -d $(DEPSDIR)/$*.d -o $(GFXBUILD)/$*.t3x
 

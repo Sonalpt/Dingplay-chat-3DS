@@ -1,0 +1,418 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A user may create and edit only their own document. The single cross-user
+    // exception is the moderation counters that report/block bump on the
+    // *target's* doc (gotContentReported / blockedByUsers) — nothing else about
+    // another user's document can be touched. This closes the previous hole
+    // where any signed-in user could overwrite anyone's profile.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      // isPremium / premiumUntil are server-owned (RevenueCat webhook). A client
+      // may never set them true on create nor change them on update.
+      allow create: if request.auth != null && request.auth.uid == userId
+        && (!('isPremium' in request.resource.data)
+            || request.resource.data.isPremium == false);
+      allow update: if request.auth != null && (
+        (request.auth.uid == userId &&
+         !request.resource.data.diff(resource.data).affectedKeys()
+           .hasAny(['isPremium', 'premiumUntil'])) ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['gotContentReported', 'blockedByUsers'])
+      );
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /usernames/{username} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /isAvailable/{uid} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /favoritesGames/{uid}/favoritesGames/{dynamicId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /appCurrentVersion/{appCurrentVersion} {
+      allow read: if true;
+    }
+
+    match /friends/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /reportsCooldown/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // Read is scoped to the lobby's browse audience. 'public' matches open
+    // lobbies; the caller's uid matches friendsOnly lobbies they were a friend
+    // of at creation, plus any lobby they were invited into or joined.
+    // inviteCode lobbies match neither, so they are only reachable through the
+    // joinLobbyByCode callable.
+    //
+    // Every lobby must carry `visibleTo` before this ships — hasAny() errors on
+    // a missing field. See functions/scripts/backfill.js.
+    match /lobbies/{lobbyId} {
+      allow read: if request.auth != null &&
+                     resource.data.visibleTo.hasAny(['public', request.auth.uid]);
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.hostId;
+    }
+
+    // Code -> lobby mapping. Server-only: a client-readable mapping would let
+    // anyone enumerate the keyspace and walk into private lobbies.
+    match /inviteCodes/{code} {
+      allow read, write: if false;
+    }
+
+    // Conversation index backing the Messages screen. The owner may reset their
+    // own unread counter; creation and the peer-side unread increment are done
+    // with the Admin SDK so a sender cannot forge a badge on someone else.
+    match /conversations/{ownerUid}/threads/{peerUid} {
+      allow read, update: if request.auth != null && request.auth.uid == ownerUid;
+      allow create, delete: if false;
+    }
+
+    // Saved themes. Owner-only, unlike users/{uid} which any authenticated user
+    // can currently overwrite. The size cap is enforced here too, so a tampered
+    // client cannot grow the array without bound.
+    match /appearance/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+                   && request.resource.data.customThemes.size() <= 5;
+    }
+
+    // Lobby chat. Messages carry the author's uid in `uid`. Anyone in the app
+    // can read a lobby's chat, but only the author may create (no impersonation)
+    // or edit. Deletion is allowed for the author OR the lobby host — the host
+    // must be able to clear every message when tearing the lobby down (deleting
+    // a lobby cleans its chat), which the author-only rule was blocking.
+    match /lobbies/{lobbyId}/chat/{messageId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        get(/databases/$(database)/documents/lobbies/$(lobbyId)).data.hostId == request.auth.uid
+      );
+    }
+
+    // Private chat, mirrored under both participants. Reads are limited to the
+    // two participants; you may only create a message you authored, in a thread
+    // you belong to, and only the author may edit or delete it.
+    match /privateChat/{uid}/{friendUid}/{messageId} {
+      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.uid == friendUid);
+      allow create: if request.auth != null &&
+                    request.resource.data.uid == request.auth.uid &&
+                    (request.auth.uid == uid || request.auth.uid == friendUid);
+      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // World chat. Author's uid is in `uid`; only the author may create (no
+    // impersonation), edit or delete their message.
+    match /worldChat/{messageID} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    match /stories/{storyId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.authorUid == request.auth.uid;
+      // The author may edit their own story; anyone else may only react (like)
+      // or bump the comment counter — never touch the content.
+      allow update: if request.auth != null && (
+        resource.data.authorUid == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['likedBy', 'likesCount', 'commentsCount'])
+      );
+      allow delete: if request.auth != null && resource.data.authorUid == request.auth.uid;
+    }
+
+    match /stories/{storyId}/comments/{commentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.authorUid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.authorUid == request.auth.uid;
+    }
+
+    match /storiesLimiter/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /calls/{callId} {
+      allow read: if request.auth != null && (
+        resource.data.callerUid == request.auth.uid ||
+        resource.data.calleeUid == request.auth.uid ||
+        (resource.data.type == 'lobby' &&
+         request.auth.uid in resource.data.participantUids)
+      );
+
+      allow create: if request.auth != null &&
+        request.resource.data.callerUid == request.auth.uid;
+
+      allow update: if request.auth != null && (
+        (resource.data.callerUid == request.auth.uid &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['status'])) ||
+        ((resource.data.calleeUid == request.auth.uid ||
+          (resource.data.type == 'lobby' &&
+           resource.data.calleeUid == null &&
+           request.auth.uid in resource.data.participantUids)) &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['answer', 'status', 'calleeUid']))
+      );
+
+      allow delete: if false;
+
+      match /offerCandidates/{candidateId} {
+        allow create: if request.auth != null &&
+          get(/databases/$(database)/documents/calls/$(callId)).data.callerUid == request.auth.uid;
+        allow read: if request.auth != null && (
+          get(/databases/$(database)/documents/calls/$(callId)).data.calleeUid == request.auth.uid ||
+          (get(/databases/$(database)/documents/calls/$(callId)).data.type == 'lobby' &&
+           request.auth.uid in get(/databases/$(database)/documents/calls/$(callId)).data.participantUids)
+        );
+        allow update, delete: if false;
+      }
+
+      match /answerCandidates/{candidateId} {
+        allow create: if request.auth != null && (
+          get(/databases/$(database)/documents/calls/$(callId)).data.calleeUid == request.auth.uid ||
+          (get(/databases/$(database)/documents/calls/$(callId)).data.type == 'lobby' &&
+           request.auth.uid in get(/databases/$(database)/documents/calls/$(callId)).data.participantUids)
+        );
+        allow read: if request.auth != null &&
+          get(/databases/$(database)/documents/calls/$(callId)).data.callerUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---- StreetPlay ------------------------------------------------------
+
+    // Map visibility (dots are already coarse-snapped, never raw GPS). Reads are
+    // audience-gated by the owner's `visibleTo` allow-list, exactly like the
+    // lobbies rule: 'public' matches an "everyone" dot; the caller's uid matches
+    // a friends / friends-of-friends dot they were included in. A missing
+    // `visibleTo` defaults to ['public'] so pre-existing docs stay readable until
+    // their owner next saves (no backfill required). A user may only write their
+    // own doc.
+    match /streetplay_visibility/{uid} {
+      allow read: if request.auth != null &&
+                     resource.data.get('visibleTo', ['public'])
+                       .hasAny(['public', request.auth.uid]);
+      allow create, update, delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Safety defaults. Owner-only both ways.
+    match /streetplay_safety/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Crossing engine meta (today count / paused) + local crossing records.
+    // Records surface only in the owner's daily report, so they are owner-only.
+    match /streetplay_crossing/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /crossings/{uid}/records/{recordId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Meetups. The public doc carries only a coarse location; the exact venue is
+    // in a private subcollection revealed only to accepted attendees. Only
+    // certified, phone-verified hosts may create; only the host mutates the doc.
+    match /meetups/{meetupId} {
+      function meetup() {
+        return get(/databases/$(database)/documents/meetups/$(meetupId)).data;
+      }
+      function userDoc() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      }
+      // 16+ (≈ 16 years in ms). Requires a self-declared birthDate to exist.
+      function isAdult() {
+        return 'birthDate' in userDoc() &&
+          request.time.toMillis() - userDoc().birthDate.toMillis() >= 504910816000;
+      }
+
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+                    request.resource.data.hostId == request.auth.uid &&
+                    userDoc().isCertifiedHost == true &&
+                    userDoc().phoneVerified == true &&
+                    isAdult();
+      allow update, delete: if request.auth != null &&
+                    resource.data.hostId == request.auth.uid;
+
+      // Exact venue — host + accepted attendees only.
+      match /private/{doc} {
+        allow read: if request.auth != null && (
+          meetup().hostId == request.auth.uid ||
+          request.auth.uid in meetup().attendees
+        );
+        allow write: if request.auth != null &&
+          meetup().hostId == request.auth.uid;
+      }
+
+      // Join requests. A phone-verified user creates their own pending request;
+      // the host accepts/declines; the requester may withdraw.
+      match /requests/{ruid} {
+        allow read: if request.auth != null && (
+          request.auth.uid == ruid || meetup().hostId == request.auth.uid
+        );
+        allow create: if request.auth != null && request.auth.uid == ruid &&
+          request.resource.data.status == 'pending' &&
+          userDoc().phoneVerified == true &&
+          isAdult();
+        allow update: if request.auth != null &&
+          meetup().hostId == request.auth.uid;
+        allow delete: if request.auth != null && request.auth.uid == ruid;
+      }
+    }
+
+    // Passport (stamps) + crossing streaks. Owner-only.
+    match /passports/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /streaks/{uid}/pairs/{pairId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Rotating BLE token → publicUID mapping (spec §4). A scanning device reads
+    // the short-lived token it heard over Bluetooth and resolves it here; a user
+    // may only publish a token that points at their own uid, so nobody can
+    // impersonate another player. Old tokens simply expire and are overwritten.
+    match /streetplay_tokens/{token} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null &&
+                            request.resource.data.publicUID == request.auth.uid;
+      allow delete: if request.auth != null &&
+                    resource.data.publicUID == request.auth.uid;
+    }
+
+    // ---- StreetPlay v2: passive crossing detection -----------------------
+    // (FEATURE_STREETPLAY.md §8). Threat model: a user scraping everyone's
+    // location history. Raw pings are server-only and unreadable by any client;
+    // all matching is server-side and clients only ever see finished crossings.
+
+    // Raw location pings. Written only by the submitPing function (Admin SDK),
+    // never readable or writable by a client. Not even the owner.
+    match /pings/{pingId} {
+      allow read, write: if false;
+    }
+
+    // Durable crossings. A participant may read their own, and may only toggle
+    // their wave / hide — never create, delete, or alter anything else. Created
+    // exclusively by the matchCrossings function.
+    match /crossings/{crossingId} {
+      allow read: if request.auth != null &&
+                     request.auth.uid in resource.data.uids;
+      allow create, delete: if false;
+      // A participant may toggle their wave / hide, and set a one-shot crossing
+      // intro message — but only under their OWN uid key in the `intros` map.
+      allow update: if request.auth != null &&
+                    request.auth.uid in resource.data.uids &&
+                    request.resource.data.diff(resource.data)
+                      .affectedKeys().hasOnly(['waves', 'hiddenBy', 'intros']) &&
+                    (
+                      !('intros' in request.resource.data.diff(resource.data)
+                          .affectedKeys()) ||
+                      request.resource.data.intros
+                        .diff(resource.data.get('intros', {}))
+                        .affectedKeys().hasOnly([request.auth.uid])
+                    );
+    }
+
+    // Per-user StreetPlay settings (enable, pause, exclusion zones, consent).
+    // Strictly owner-only.
+    match /streetPlaySettings/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Payments (RevenueCat) ─────────────────────────────────────────────
+
+    // Coin wallet. Read-your-own; the balance is written ONLY by the server
+    // (webhook credits top-ups, the spend callable debits). No client writes.
+    match /wallets/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+      match /transactions/{txId} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
+    }
+
+    // Store catalogue. Anyone signed in can browse; items are published by the
+    // server/admin only (console writes bypass rules).
+    match /store_items/{itemId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Entitlement keys (permanent + subscription) — minted server-side, tied to
+    // one account. Read-your-own; never client-writable.
+    match /store_keys/{keyId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Owned records for keyless items (cosmetics/consumables). Read-your-own.
+    match /owned_items/{ownedId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Purchase transaction idempotency — server-only.
+    match /store_idempotency/{id} {
+      allow read, write: if false;
+    }
+
+    // Purchase receipts (store item purchases; issued server-side). Read-own.
+    match /purchases/{purchaseId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // RevenueCat webhook idempotency log — server-only, never client-readable.
+    match /revenuecat_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    // Admin allow-list. A user may check whether THEY are an admin (to reveal
+    // admin tools), but membership is set only via the console/Admin SDK — never
+    // client-writable, so nobody can grant themselves admin.
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    
+
+    // ---- Dingplay Chat (3DS / 2DS consoles) ---------------------------------
+
+    // Console-exclusive themed rooms are written only by the console relay
+    // (Admin SDK, see Dingplay-chat-3DS/relay). No client may touch them.
+    match /consoleRooms/{roomId} {
+      allow read, write: if false;
+      match /messages/{messageId} {
+        allow read, write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

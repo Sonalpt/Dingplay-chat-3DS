@@ -195,7 +195,7 @@ static void update(const Input *in) {
             if (f) {
                 ChatArg a;
                 memset(&a, 0, sizeof(a));
-                snprintf(a.room, sizeof(a.room), "dm-%s", f->uid);
+                snprintf(a.room, sizeof(a.room), "dm-%.40s", f->uid);
                 strncpy(a.title, f->username, sizeof(a.title) - 1);
                 strncpy(a.peer_uid, f->uid, sizeof(a.peer_uid) - 1);
                 a.kind = 1;

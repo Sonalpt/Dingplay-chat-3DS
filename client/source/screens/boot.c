@@ -156,7 +156,7 @@ static void draw_bottom(void) {
     const char *title = failed ? (s_step == ST_FAIL_WIFI ? tr(S_NO_WIFI) : tr(S_RELAY_UNREACHABLE)) : tr(S_WAKING);
     ui_text(BOT_W / 2, 52, 12, failed ? C_ORANGE : C_WHITE, ALIGN_CENTER, FONT_HEAD, title);
     ui_progress(40, 78, 240, 16, s_progress, failed ? C_ORANGE : C_GREEN, C_WHITE);
-    char sub[96];
+    char sub[160];
     if (s_step == ST_WIFI || s_step == ST_INIT) snprintf(sub, sizeof(sub), "%s", tr(S_CHECK_WIFI));
     else if (s_step == ST_RELAY) snprintf(sub, sizeof(sub), "%s · %s", tr(S_CHECK_WIFI), tr(S_CHECK_RELAY));
     else if (failed) snprintf(sub, sizeof(sub), "%s", s_step == ST_FAIL_RELAY ? g_settings.relay : tr(S_TIP_LOCAL));
