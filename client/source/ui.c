@@ -574,7 +574,7 @@ void ui_avatar(float x, float y, float size, bool round, const char *uid, const 
         else ui_rrect(x, y, size, size, size * 0.28f, border);
     }
     float inner = size - 2 * bw;
-    C2D_Image *img = (uid && *uid) ? avatar_get(uid, round) : NULL;
+    C2D_Image *img = (uid && *uid && strncmp(uid, "node-", 5) != 0) ? avatar_get(uid, round) : NULL;
     if (img) {
         float sc = inner / (float)img->subtex->width;
         C2D_DrawImageAt(*img, x + bw, y + bw, DEPTH, NULL, sc, sc);

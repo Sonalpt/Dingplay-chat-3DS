@@ -1,6 +1,7 @@
 #include "udsnet.h"
 #include "../api.h"
 #include "../theme.h"
+#include "../mii.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +34,9 @@ enum {
     PKT_KICK = 8,    // host→node
     PKT_CLOSE = 9,   // host→all
     PKT_LEAVE = 10,  // guest→host
+    PKT_PROFILE = 11,// host→all    u16 node; char uid[UID_LEN]; u8 mii[MII_LEN]  (avatar identity of one member)
 };
+#define HELLO_LEN (NAME_LEN + UID_LEN + MII_LEN)  // name, Dingplay uid ("" if guest), Mii
 enum { KIND_DRAW = 1, KIND_VOICE = 2 };
 enum { ROSTER_MUTED = 1, ROSTER_HOST = 2 };
 
@@ -83,11 +86,17 @@ typedef struct {
     bool used, accepted, muted;
     u16 node;
     char name[NAME_LEN];
+    char uid[UID_LEN];          // Dingplay uid or ""
+    u8 mii[MII_LEN];            // owner's Mii (all zero if unknown)
+    char avatar_key[UID_LEN];   // derived: uid, else mii key, else ""
     u64 last_seen;
     u64 since;
     int dropped;
 } Node;
 static Node s_nodes[LOCAL_MAX_NODES];   // host: everyone connected; guest: roster
+
+static bool send_raw(u16 dst, u8 type, const void *payload, u16 len);
+static void broadcast_members(u8 type, const void *payload, u16 len);
 
 // Names that recently dropped out, to count "out of range N times".
 typedef struct {
@@ -123,15 +132,7 @@ static void load_my_name(void) {
         strncpy(s_my_name, g_session.username, sizeof(s_my_name) - 1);
         return;
     }
-    s_my_name[0] = 0;
-    if (R_SUCCEEDED(cfguInit())) {
-        u16 mii[0x1C / 2 + 1] = {0};
-        if (R_SUCCEEDED(CFGU_GetConfigInfoBlk2(0x1C, 0x000A0000, mii))) {
-            ssize_t n = utf16_to_utf8((u8 *)s_my_name, mii, sizeof(s_my_name) - 1);
-            s_my_name[n > 0 ? n : 0] = 0;
-        }
-        cfguExit();
-    }
+    strncpy(s_my_name, mii_own_name(), sizeof(s_my_name) - 1);
     if (!s_my_name[0]) strcpy(s_my_name, "3DS");
 }
 
@@ -155,6 +156,51 @@ bool local_available(void) { return s_uds_ok; }
 const char *local_my_name(void) {
     load_my_name();
     return s_my_name;
+}
+
+const char *local_my_avatar_key(void) {
+    if (g_session.logged_in && g_session.uid[0]) return g_session.uid;
+    return mii_own_key();
+}
+
+// Fills a node's identity from a HELLO / PROFILE payload and derives its avatar key.
+static void node_set_profile(Node *n, const char *uid, const u8 *mii) {
+    if (!n) return;
+    if (uid) {
+        strncpy(n->uid, uid, UID_LEN - 1);
+        n->uid[UID_LEN - 1] = 0;
+    }
+    if (mii) memcpy(n->mii, mii, MII_LEN);
+    if (n->uid[0]) strncpy(n->avatar_key, n->uid, UID_LEN - 1);
+    else mii_register(n->mii, n->avatar_key);
+}
+
+static void my_profile(char *uid, u8 *mii) {
+    memset(uid, 0, UID_LEN);
+    if (g_session.logged_in) strncpy(uid, g_session.uid, UID_LEN - 1);
+    if (!mii_own(mii)) memset(mii, 0, MII_LEN);
+}
+
+static void send_hello(void) {
+    u8 hello[HELLO_LEN];
+    memset(hello, 0, sizeof(hello));
+    strncpy((char *)hello, s_my_name, NAME_LEN - 1);
+    my_profile((char *)hello + NAME_LEN, hello + NAME_LEN + UID_LEN);
+    send_raw(UDS_HOST_NETWORKNODEID, PKT_HELLO, hello, HELLO_LEN);
+}
+
+// Host → everyone: who each accepted member is (one frame per member).
+static void send_profiles(u16 dst) {
+    for (int i = 0; i < LOCAL_MAX_NODES; i++) {
+        Node *n = &s_nodes[i];
+        if (!n->used || !n->accepted) continue;
+        u8 buf[2 + UID_LEN + MII_LEN];
+        wr16(buf, n->node);
+        memcpy(buf + 2, n->uid, UID_LEN);
+        memcpy(buf + 2 + UID_LEN, n->mii, MII_LEN);
+        if (dst == UDS_BROADCAST_NETWORKNODEID) broadcast_members(PKT_PROFILE, buf, sizeof(buf));
+        else send_raw(dst, PKT_PROFILE, buf, sizeof(buf));
+    }
 }
 
 // ---- Sending helpers -----------------------------------------------------------------------------------
@@ -379,7 +425,13 @@ bool local_host(const char *name, int slots, const char *passcode) {
     s_my_node = UDS_HOST_NETWORKNODEID;
     udsConnectionStatus st;
     if (R_SUCCEEDED(udsGetConnectionStatus(&st))) s_my_node = st.cur_NetworkNodeID;
-    node_add(s_my_node, s_my_name, true);
+    {
+        Node *me = node_add(s_my_node, s_my_name, true);
+        char uid[UID_LEN];
+        u8 mii[MII_LEN];
+        my_profile(uid, mii);
+        node_set_profile(me, uid, mii);
+    }
     s_state = LOCAL_HOSTING;
     s_started_tick = now_ms();
     update_beacon();
@@ -397,6 +449,7 @@ void local_accept(u16 node) {
     n->accepted = true;
     send_raw(node, PKT_WELCOME, NULL, 0);
     send_roster(UDS_BROADCAST_NETWORKNODEID);
+    send_profiles(UDS_BROADCAST_NETWORKNODEID);
     update_beacon();
 }
 
@@ -446,10 +499,7 @@ bool local_join(const LocalRoom *room, const char *passcode) {
     udsConnectionStatus st;
     s_my_node = 0;
     if (R_SUCCEEDED(udsGetConnectionStatus(&st))) s_my_node = st.cur_NetworkNodeID;
-    char hello[NAME_LEN];
-    memset(hello, 0, sizeof(hello));
-    strncpy(hello, s_my_name, NAME_LEN - 1);
-    send_raw(UDS_HOST_NETWORKNODEID, PKT_HELLO, hello, NAME_LEN);
+    send_hello();
     s_state = LOCAL_WAITING;
     s_started_tick = now_ms();
     s_last_heartbeat_seen = now_ms();
@@ -486,7 +536,12 @@ static void push_message(u16 src, u32 msgid, u8 type, const char *text, DrawingR
     Message m;
     memset(&m, 0, sizeof(m));
     snprintf(m.id, sizeof(m.id), "l-%u-%u", src, (unsigned)msgid);
-    snprintf(m.uid, sizeof(m.uid), "node-%u", src);
+    {
+        Node *n = node_find(src);
+        if (n && n->avatar_key[0]) strncpy(m.uid, n->avatar_key, sizeof(m.uid) - 1);
+        else if (src == s_my_node) strncpy(m.uid, local_my_avatar_key(), sizeof(m.uid) - 1);
+        else snprintf(m.uid, sizeof(m.uid), "node-%u", src);
+    }
     strncpy(m.name, src == s_my_node ? s_my_name : name_for(src), NAME_LEN - 1);
     m.type = type;
     m.mine = src == s_my_node;
@@ -620,6 +675,9 @@ static void handle_roster(const u8 *p, u16 len) {
     int count = p[0];
     if (len < 1 + count * (3 + NAME_LEN) + ROOM_NAME_LEN) return;
     bool was_muted = s_muted_me;
+    // Keep identities we already know; drop nodes no longer listed.
+    Node old[LOCAL_MAX_NODES];
+    memcpy(old, s_nodes, sizeof(old));
     memset(s_nodes, 0, sizeof(s_nodes));
     const u8 *q = p + 1;
     for (int i = 0; i < count; i++, q += 3 + NAME_LEN) {
@@ -628,7 +686,17 @@ static void handle_roster(const u8 *p, u16 len) {
         memcpy(name, q + 3, NAME_LEN);
         name[NAME_LEN - 1] = 0;
         Node *n = node_add(node, name, true);
-        if (n) n->muted = (q[2] & ROSTER_MUTED) != 0;
+        if (n) {
+            n->muted = (q[2] & ROSTER_MUTED) != 0;
+            for (int k = 0; k < LOCAL_MAX_NODES; k++)
+                if (old[k].used && old[k].node == node) node_set_profile(n, old[k].uid, old[k].mii);
+            if (node == s_my_node && !n->avatar_key[0]) {
+                char uid[UID_LEN];
+                u8 mii[MII_LEN];
+                my_profile(uid, mii);
+                node_set_profile(n, uid, mii);
+            }
+        }
         if (node == s_my_node) s_muted_me = (q[2] & ROSTER_MUTED) != 0;
     }
     memcpy(s_room_name, q, ROOM_NAME_LEN);
@@ -661,7 +729,13 @@ static void handle_packet(u16 src, const u8 *frame, size_t size) {
                     udsEjectClient(src);
                     break;
                 }
-                node_add(src, name, false);  // lands in "waiting to join"
+                Node *n = node_add(src, name, false);  // lands in "waiting to join"
+                if (len >= HELLO_LEN) {
+                    char uid[UID_LEN];
+                    memcpy(uid, p + NAME_LEN, UID_LEN);
+                    uid[UID_LEN - 1] = 0;
+                    node_set_profile(n, uid, p + NAME_LEN + UID_LEN);
+                }
             }
             break;
         case PKT_WELCOME:
@@ -716,6 +790,16 @@ static void handle_packet(u16 src, const u8 *frame, size_t size) {
             udsDisconnectNetwork();
             udsUnbind(&s_bind);
             break;
+        case PKT_PROFILE: {
+            if (s_host || len < 2 + UID_LEN + MII_LEN) break;
+            Node *n = node_find(rd16(p));
+            if (!n) break;
+            char uid[UID_LEN];
+            memcpy(uid, p + 2, UID_LEN);
+            uid[UID_LEN - 1] = 0;
+            node_set_profile(n, uid, p + 2 + UID_LEN);
+            break;
+        }
         case PKT_LEAVE:
             if (!s_host) break;
             node_remove(src, false);
@@ -780,10 +864,7 @@ void local_update(void) {
         } else if (s_state == LOCAL_WAITING && now - s_started_tick > 3000 && ((now - s_started_tick) / 1000) % 3 == 0 && s_hello_msgid != (u32)((now - s_started_tick) / 3000)) {
             // Re-send HELLO every 3 s until the host answers (first frame may race the bind).
             s_hello_msgid = (u32)((now - s_started_tick) / 3000);
-            char hello[NAME_LEN];
-            memset(hello, 0, sizeof(hello));
-            strncpy(hello, s_my_name, NAME_LEN - 1);
-            send_raw(UDS_HOST_NETWORKNODEID, PKT_HELLO, hello, NAME_LEN);
+            send_hello();
         }
     }
     // Expire stale reassemblies.
@@ -818,6 +899,8 @@ int local_members(LocalMember *out, int max) {
             out[c].node = n->node;
             strncpy(out[c].name, n->name, NAME_LEN - 1);
             out[c].name[NAME_LEN - 1] = 0;
+            strncpy(out[c].avatar_key, n->avatar_key, UID_LEN - 1);
+            out[c].avatar_key[UID_LEN - 1] = 0;
             out[c].muted = n->muted;
             out[c].is_host = is_host;
             out[c].is_me = n->node == s_my_node;
@@ -837,6 +920,8 @@ int local_pending(LocalPending *out, int max) {
         out[c].node = n->node;
         strncpy(out[c].name, n->name, NAME_LEN - 1);
         out[c].name[NAME_LEN - 1] = 0;
+        strncpy(out[c].avatar_key, n->avatar_key, UID_LEN - 1);
+        out[c].avatar_key[UID_LEN - 1] = 0;
         out[c].dropped = n->dropped;
         out[c].since = n->since;
         c++;

@@ -59,7 +59,8 @@ All responses are JSON unless noted. Authenticated calls send
 | GET | `/rooms` | themed rooms `{rooms:[{id,name,topic,host,count}]}` |
 | POST | `/rooms` | `{name, topic}` → `{room:"room-<id>"}` |
 | POST | `/rooms/:id/join` · `/leave` · `/close` | |
-| GET | `/avatar/:uid?s=48` | raw RGBA8 bytes, `x-size` header — pre-decoded so the console needs no image codec |
+| GET | `/avatar/:uid?s=48` | raw RGBA8 bytes, `x-size` header — pre-decoded so the console needs no image codec. No session needed (guest consoles in a local room need members' pictures) |
+| POST | `/mii/render?s=48` | body: 3DS Mii (`CFLStoreData`, 0x5C–0x60 bytes) → raw RGBA8. Converted to Mii Studio data and rendered by `studio.mii.nintendo.com`, cached by face. No session needed |
 
 Room ids: `global` (world chat, channel from `lang`), `dm-<uid>`, `room-<id>`.
 
@@ -79,6 +80,7 @@ Message shape returned to the console:
 - **Voice** — stored as `type: "voice"`. `mediaUrl3ds` is always the ADPCM `DPV1` blob; when ffmpeg is
   present `mediaUrl` is an AAC `.m4a` phones can play, otherwise it points to the DPV blob (phones will
   show a player that fails to load). Phone voice notes are transcoded to DPV1 on demand for consoles.
+- **Avatars** — account → Dingplay profile picture; no account → the console's Mii, rendered through Nintendo's Mii Studio endpoint (`src/lib/mii.js`, independent implementation from the 3dbrew field layout — no AGPL code).
 - **Presence** — the relay bumps `users/{uid}.lastConnection` (throttled) so console users appear online.
 - **Push** — DMs from a console trigger the same FCM notification and conversation-index update as the
   mobile app's `sendPrivateChatMessageNotification`; world chat posts fire the `world_chat` topic.

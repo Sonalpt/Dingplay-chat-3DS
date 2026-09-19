@@ -21,10 +21,12 @@ client/
     voice.c/h           mic → IMA-ADPCM on the fly (DPV1), ndsp playback, notification blip
     adpcm.c/h           codec (twin of relay/src/lib/adpcm.js)
     kbd.c/h             swkbd wrapper
+    mii.c/h             owner's Mii from system config + registry of peers' Miis (avatar keys "mii:<hash>")
     local/udsnet.c/h    Local Wireless: host / join / approve / mute / kick, chunked draw + voice
     screens/            one file per mockup screen (01 boot … 09 settings) + common.c (chat log, voice bubble, record panel)
   gfx/logo.t3s          launcher icon → boot splash texture (tex3ds)
   tools/app.rsf         makerom spec for the .cia
+  tools/hostcheck/      clang syntax check against cloned devkitPro headers (no devkitARM needed)
 ```
 
 ## Build
@@ -73,8 +75,11 @@ system font.
 
 ## Deviations from the mockups worth knowing
 
-- "Level 12" under the username has no backing field in Dingplay's schema; the line shows
-  the friend count instead.
+- "Level 12" under the username: Dingplay has no level system, so the line is just `@username`.
+- Avatars: a member with a Dingplay account shows their profile picture; without one, the
+  console's own Mii (rendered by the relay through Mii Studio, so it needs Wi-Fi — offline
+  Local Wireless shows the initial placeholder). In Local Wireless the uid + Mii travel in the
+  HELLO / PROFILE frames so every console can look peers up.
 - Emoji: Nunito (and the 3DS system font) has no colour emoji, so the Emoji button inserts
   text emoticons (`:)`, `:D`, `<3` …).
 - Signal strength for nearby rooms comes from beacon presence across scans (a room missing

@@ -40,6 +40,44 @@ truth for every screen (`data-screen-label` marks 01 Boot → 09 Settings).
 
 ---
 
+## 1b. Session 2 (2026-09-19, still on the Mac) — what changed since the message above
+
+Answers to the five "what I need from you" items, and code changes:
+
+1. `relay/serviceAccount.json` is in place (git-ignored) and `relay/.env` is written with it,
+   the Android Web API key and a generated `RELAY_SECRET`. **The relay now runs against the real
+   project**: `/health`, `/stats`, `/auth/login` (→ `unknown_user` for a bogus name) all answer.
+2. Web API key: both keys in `firebase_options.dart` are unrestricted (probed with a fake login →
+   `INVALID_LOGIN_CREDENTIALS`, i.e. accepted). Nothing to create.
+3. Firestore rules: the `consoleRooms` block is appended to `~/Desktop/dingconnect/firestore.rules`
+   and passes `firebase deploy --only firestore:rules --dry-run`. **Not deployed** — that file also
+   carries an unrelated uncommitted change (lobby hosts may delete chat messages) which may or may
+   not be live yet. Rémy runs `cd ~/Desktop/dingconnect && firebase deploy --only firestore:rules`
+   when ready. "Plain HTTP" = the console needs an `http://` URL it can reach: on the LAN
+   `http://<mac-ip>:8080`; on a VPS keep port 80/8080 plain HTTP (TLS in front is fine only if an
+   HTTP listener stays open for consoles).
+4. devkitPro on the Mac: `~/Downloads/devkitpro-pacman-installer.pkg` is downloaded; the install
+   needs `sudo` (a password prompt Claude can't answer). Rémy runs:
+   `sudo installer -pkg ~/Downloads/devkitpro-pacman-installer.pkg -target /` then
+   `sudo dkp-pacman -S 3ds-dev`, and Claude can `make`.
+5. `dspfirm.cdc` is a dump of the console's own DSP firmware (Nintendo code, not downloadable):
+   run the **DSP1** homebrew once (github.com/zoogie/DSP1, `.3dsx` via the Homebrew Launcher);
+   it writes `sdmc:/3ds/dspfirm.cdc`.
+
+Decisions applied:
+- "Level 12" line removed → `@username` only (`screens/home.c`).
+- Avatars: account → profile picture, no account → the console's Mii. New `relay/src/lib/mii.js`
+  (3DS `CFLStoreData` → Mii Studio, written from the 3dbrew layout, no AGPL code) +
+  `POST /mii/render`; new `client/source/mii.c`; uid + Mii ride in the UDS `HELLO` and a new
+  `PKT_PROFILE` frame; `LocalMember.avatar_key`. Verified end-to-end on the relay (a synthetic
+  Mii renders to 48 px RGBA). Offline Local Wireless (no Wi-Fi) still shows the initial placeholder.
+- Also fixed: the Mii-name read in `udsnet.c` was decoding the wrong bytes (now via `mii.c`).
+
+Tooling: `client/tools/hostcheck/check.sh <dir>` re-runs the clang syntax check against cloned
+libctru/citro headers (so it survives across machines); relay `npm test` → 7/7.
+
+---
+
 ## 2. What has and has not been verified
 
 | piece                                                       | verified how                                                                                                                                     | not yet verified                                             |

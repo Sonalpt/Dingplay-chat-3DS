@@ -79,7 +79,7 @@ static void draw_top(void) {
     float ry = 35 + ui_line_height(9) + 6;
     for (int i = 0; i < nm && i < 5; i++) {
         float ax = 12 + i * 50;
-        ui_avatar(ax + 2, ry, 40, false, mem[i].is_me && g_session.logged_in ? g_session.uid : NULL, mem[i].name, mem[i].is_host ? 3 : 2, mem[i].is_host ? C_GREEN : C_INK);
+        ui_avatar(ax + 2, ry, 40, false, mem[i].avatar_key, mem[i].name, mem[i].is_host ? 3 : 2, mem[i].is_host ? C_GREEN : C_INK);
         char n[16];
         ui_ellipsize(n, sizeof(n), 9, FONT_HEAD, mem[i].name, 48);
         ui_text(ax + 22, ry + 42, 9, mem[i].muted ? C_MUTED2 : C_INK, ALIGN_CENTER, FONT_HEAD, n);
@@ -96,7 +96,7 @@ static void draw_top(void) {
     LocalPending pend[LOCAL_MAX_NODES];
     int np = local_pending(pend, LOCAL_MAX_NODES);
     if (np > 0) {
-        ui_avatar(px + 9, py + 28, 26, true, NULL, pend[0].name, 2, C_INK);
+        ui_avatar(px + 9, py + 28, 26, true, pend[0].avatar_key, pend[0].name, 2, C_INK);
         ui_text_v(px + 41, py + 28, 26, 13, C_WHITE, ALIGN_LEFT, FONT_HEAD, pend[0].name);
         if (pend[0].dropped > 0) {
             char line[120];
@@ -127,7 +127,7 @@ static void draw_bottom(void) {
     float y = ROW_Y0;
     if (np > 0) {
         ui_rrect_border(8, y, BOT_W - 16, PEND_H, 10, 2, C_ORANGE, C_INK);
-        ui_avatar(16, y + 8, 24, true, NULL, pend[0].name, 2, C_INK);
+        ui_avatar(16, y + 8, 24, true, pend[0].avatar_key, pend[0].name, 2, C_INK);
         char line[64];
         snprintf(line, sizeof(line), "%s%s", pend[0].name, tr(S_WANTS_TO_JOIN));
         ui_text_wrap(47, y + 7, BOT_W - 47 - 130, 11, C_WHITE, ALIGN_LEFT, FONT_HEAD, line, 2, 13);
@@ -142,7 +142,7 @@ static void draw_bottom(void) {
         if (mem[i].is_me) continue;
         if (y + MEM_H > BTN_Y - 6) break;
         ui_rrect_border(8, y, BOT_W - 16, MEM_H, 9, 2, C_WHITE, C_INK);
-        ui_avatar(16, y + 5, 20, true, NULL, mem[i].name, 0, 0);
+        ui_avatar(16, y + 5, 20, true, mem[i].avatar_key, mem[i].name, 0, 0);
         ui_text_v(43, y, MEM_H, 12, C_INK, ALIGN_LEFT, FONT_HEAD, mem[i].name);
         float kx = BOT_W - 8 - 8 - 48, mx = kx - 6 - 44;
         ui_rrect_border(mx, y + 4, 44, 22, 6, 1.5f, mem[i].muted ? C_INK : C_SAND, C_INK);

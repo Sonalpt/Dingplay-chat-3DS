@@ -2,6 +2,7 @@
 #include "common.h"
 #include "../api.h"
 #include "../local/udsnet.h"
+#include "../mii.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -56,7 +57,7 @@ static void draw_top(void) {
         snprintf(hello, sizeof(hello), "%s%s", tr(S_HELLO), g_session.username);
         ui_text(ax + 78, ay - 2, 20, C_INK, ALIGN_LEFT, FONT_HEAD, hello);
         char sub[80];
-        snprintf(sub, sizeof(sub), "@%s · %d %s", g_session.username, g_session.friends_total, tr(S_N_FRIENDS));
+        snprintf(sub, sizeof(sub), "@%s", g_session.username);
         ui_text(ax + 78, ay + 26, 11, C_MUTED, ALIGN_LEFT, FONT_BODY, sub);
         char c1[40], c2[40];
         snprintf(c1, sizeof(c1), "%d %s", g_session.friends_online, tr(S_FRIENDS_ONLINE));
@@ -64,8 +65,9 @@ static void draw_top(void) {
         float w = ui_chip(ax + 78, ay + 47, 9, 8, 3, C_GREEN, C_WHITE, c1);
         ui_chip(ax + 78 + w + 6, ay + 47, 9, 8, 3, C_BLUE, C_WHITE, c2);
     } else {
-        ui_avatar(ax, ay, 64, false, NULL, "?", 3, C_INK);
-        ui_text(ax + 78, ay - 2, 20, C_INK, ALIGN_LEFT, FONT_HEAD, tr(S_GUEST));
+        const char *mii_name = mii_own_name();
+        ui_avatar(ax, ay, 64, false, mii_own_key(), mii_name[0] ? mii_name : "?", 3, C_INK);
+        ui_text(ax + 78, ay - 2, 20, C_INK, ALIGN_LEFT, FONT_HEAD, mii_name[0] ? mii_name : tr(S_GUEST));
         ui_text(ax + 78, ay + 26, 11, C_MUTED, ALIGN_LEFT, FONT_BODY, tr(S_GUEST_SUB));
         ui_chip(ax + 78, ay + 47, 9, 8, 3, C_SAND, C_MUTED, tr(S_TIP_LOCAL));
     }

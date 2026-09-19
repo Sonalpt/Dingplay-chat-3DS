@@ -173,7 +173,7 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             // avatar bottom-aligned with the bubble
             float ax = x, ay = top + name_h + bubble_h - avatar;
             if (style == LOG_NAVY) ui_avatar(ax, ay, avatar, true, m->uid, m->name, 0, 0);
-            else ui_avatar(ax, ay, avatar, true, NULL, m->name, 2, C_INK);
+            else ui_avatar(ax, ay, avatar, true, m->uid, m->name, 2, C_INK);
             bx = x + avatar + 6;
             if (name_h) ui_text(bx, top, 8, C_NAVY_NAME, ALIGN_LEFT, FONT_HEAD, m->name);
             by = top + name_h;

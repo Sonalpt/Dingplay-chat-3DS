@@ -3,6 +3,7 @@
 #include "common.h"
 #include "../kbd.h"
 #include "../local/udsnet.h"
+#include "../mii.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -80,7 +81,7 @@ static void draw_top(void) {
     float cx = 14, cy = 14 + ui_line_height(10) + 9, cw = TOP_W - 28, ch = 122;
     ui_card(cx, cy, cw, ch, 13, 3, C_WHITE, C_INK, 4, 4, C_BLUE_SHADOW);
     const char *me = local_my_name();
-    ui_avatar(cx + 10, cy + 10, 34, false, g_session.logged_in ? g_session.uid : NULL, me, 2, C_INK);
+    ui_avatar(cx + 10, cy + 10, 34, false, local_my_avatar_key(), me, 2, C_INK);
     ui_text(cx + 53, cy + 8, 17, C_INK, ALIGN_LEFT, FONT_HEAD, s_name);
     char host[64];
     snprintf(host, sizeof(host), "%s%s", tr(S_HOSTED_BY), me);
@@ -95,7 +96,7 @@ static void draw_top(void) {
     float sw = per_row > 8 ? 19 : 26, sh = per_row > 8 ? 18 : 24, gap = 4;
     for (int i = 0; i < s_slots; i++) {
         float sx = cx + 10 + i * (sw + gap);
-        if (i == 0) ui_avatar(sx, sy, sw, false, g_session.logged_in ? g_session.uid : NULL, me, 2, C_INK);
+        if (i == 0) ui_avatar(sx, sy, sw, false, local_my_avatar_key(), me, 2, C_INK);
         else ui_dashed_rrect(sx, sy, sw, sh, 6, 2, C_STONE);
     }
     // chips

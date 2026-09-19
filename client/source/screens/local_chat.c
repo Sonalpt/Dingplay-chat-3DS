@@ -189,7 +189,7 @@ static void draw_top(void) {
     float hw = ui_text_width(9, FONT_HEAD, here);
     int shown = nm < 3 ? nm : 3;
     float sx = TOP_W - 9 - hw - 3 - (shown ? 15 + (shown - 1) * 10 : 0);
-    for (int i = 0; i < shown; i++) ui_avatar(sx + i * 10, 4.5f, 15, true, mem[i].is_me && g_session.logged_in ? g_session.uid : NULL, mem[i].name, 1, C_WHITE);
+    for (int i = 0; i < shown; i++) ui_avatar(sx + i * 10, 4.5f, 15, true, mem[i].avatar_key, mem[i].name, 1, C_WHITE);
     ui_text_v(TOP_W - 9, 0, 24, 9, C_WHITE, ALIGN_RIGHT, FONT_HEAD, here);
     int sig = local_signal();
     if (sig < 2) ui_circle(TOP_W - 9 - hw - 6 - (shown ? 15 + (shown - 1) * 10 : 0) - 6, 12, 3, sig == 1 ? C_ORANGE : C_RED);

@@ -74,3 +74,33 @@ test('session tokens sign, verify, expire and revoke', () => {
   auth.revokeToken(t);
   assert.equal(auth.verifyToken(t), null);
 });
+
+test('3DS Mii → Studio conversion produces 46 fields and a renderable payload', () => {
+  const mii = require('../src/lib/mii');
+  // Build a CFLStoreData with known field values.
+  const b = Buffer.alloc(0x60);
+  b[0] = 3;
+  b.writeUInt16LE(1 | (7 << 10), 0x18); // female, favourite colour 7 (pink)
+  'Léa'.split('').forEach((c, i) => b.writeUInt16LE(c.charCodeAt(0), 0x1a + i * 2));
+  b[0x2e] = 70; b[0x2f] = 40;           // height, weight
+  b[0x30] = (5 << 1) | (2 << 5);        // face type 5, skin 2
+  b[0x32] = 33; b[0x33] = 0 | (1 << 3); // hair 33, colour 0 (→ 8), flipped
+  b.writeUInt32LE(4 | (2 << 6) | (5 << 9) | (3 << 13) | (4 << 16) | (2 << 21) | (12 << 25), 0x34);
+  b.writeUInt16LE(1 | (3 << 6) | (4 << 9) | (3 << 13), 0x3e); // mouth type 1, colour 3 (→ 22)
+  b.writeUInt16LE(2 | (5 << 4), 0x44);  // glasses type 2, colour 5 (→ 18)
+  const m = mii.parse3ds(b);
+  assert.equal(m.name, 'Léa');
+  assert.equal(m.gender, 1);
+  assert.equal(m.favoriteColor, 7);
+  assert.equal(m.eyeType, 4);
+  assert.equal(m.eyeVertical, 12);
+  const vals = mii.toStudio(m);
+  assert.equal(vals.length, 46);
+  assert.equal(vals[27], 8);   // hair colour 0 → 8
+  assert.equal(vals[36], 22);  // mouth colour 3 → 22
+  assert.equal(vals[23], 18);  // glasses colour 5 → 18
+  const hex = mii.encodeStudio(vals);
+  assert.equal(hex.length, 2 + 46 * 2);
+  assert.ok(hex.startsWith('00'));
+  assert.equal(mii.parse3ds(Buffer.alloc(10)), null);
+});

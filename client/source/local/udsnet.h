@@ -32,6 +32,7 @@ typedef struct {
 typedef struct {
     u16 node;
     char name[NAME_LEN];
+    char avatar_key[UID_LEN];   // Dingplay uid, "mii:<hash>", or "" (placeholder)
     bool muted, is_host, is_me;
     u64 last_seen;
 } LocalMember;
@@ -39,6 +40,7 @@ typedef struct {
 typedef struct {
     u16 node;
     char name[NAME_LEN];
+    char avatar_key[UID_LEN];
     int dropped;     // times this name fell out of range before
     u64 since;
 } LocalPending;
@@ -54,6 +56,8 @@ bool local_init(void);          // udsInit; false when local wireless is unavail
 void local_exit(void);
 bool local_available(void);
 const char *local_my_name(void);
+// Avatar key for this console: Dingplay uid when signed in, else the owner's Mii.
+const char *local_my_avatar_key(void);
 
 // Lobby
 int local_scan(void);           // blocking (~0.3 s); refreshes g_local_rooms; returns count

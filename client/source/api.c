@@ -1,6 +1,7 @@
 #include "api.h"
 #include "adpcm.h"
 #include "avatar.h"
+#include "mii.h"
 #include "net.h"
 #include "store.h"
 #include "theme.h"
@@ -84,14 +85,21 @@ static void avatar_done(NetJob *job) {
     else avatar_mark_failed(job->key);
 }
 
-static void avatar_fetch(const char *uid) {
-    if (!g_session.logged_in) {
-        avatar_mark_failed(uid);
+// Keys are a Dingplay uid (profile picture) or "mii:<hash>" (a Mii registered in
+// mii.c, rendered by the relay). Neither needs a session, only Wi-Fi.
+static void avatar_fetch(const char *key) {
+    if (!g_wifi) {
+        avatar_mark_failed(key);
+        return;
+    }
+    const u8 *mii = mii_lookup(key);
+    if (mii) {
+        net_request("POST", "/mii/render?s=48", mii, MII_LEN, "application/octet-stream", avatar_done, NULL, TAG_AVATAR, key);
         return;
     }
     char path[96];
-    snprintf(path, sizeof(path), "/avatar/%s?s=48", uid);
-    net_request("GET", path, NULL, 0, NULL, avatar_done, NULL, TAG_AVATAR, uid);
+    snprintf(path, sizeof(path), "/avatar/%s?s=48", key);
+    net_request("GET", path, NULL, 0, NULL, avatar_done, NULL, TAG_AVATAR, key);
 }
 
 void api_init(void) {

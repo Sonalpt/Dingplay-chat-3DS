@@ -3,6 +3,7 @@
 #include "../api.h"
 #include "../kbd.h"
 #include "../local/udsnet.h"
+#include "../mii.h"
 #include "../store.h"
 #include <stdio.h>
 #include <string.h>
@@ -112,8 +113,9 @@ static void draw_top(void) {
         snprintf(sub, sizeof(sub), "@%s · %s", g_session.username, tr(S_SIGNED_IN_HERE));
         ui_text(82, y + 32, 10, C_MUTED, ALIGN_LEFT, FONT_BODY, sub);
     } else {
-        ui_avatar(16, y, 54, false, NULL, "?", 3, C_INK);
-        ui_text(82, y + 6, 18, C_INK, ALIGN_LEFT, FONT_HEAD, tr(S_GUEST));
+        const char *mii_name = mii_own_name();
+        ui_avatar(16, y, 54, false, mii_own_key(), mii_name[0] ? mii_name : "?", 3, C_INK);
+        ui_text(82, y + 6, 18, C_INK, ALIGN_LEFT, FONT_HEAD, mii_name[0] ? mii_name : tr(S_GUEST));
         ui_text(82, y + 32, 10, C_MUTED, ALIGN_LEFT, FONT_BODY, tr(S_NOT_SIGNED_IN));
     }
     y += 54 + 12;
