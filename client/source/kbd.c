@@ -1,6 +1,7 @@
 #include "kbd.h"
 #include <3ds.h>
 #include <string.h>
+#include "dbg.h"
 
 bool kbd_prompt(KbdKind kind, const char *hint, char *buf, size_t n, int max_chars) {
     SwkbdState kb;
@@ -16,6 +17,7 @@ bool kbd_prompt(KbdKind kind, const char *hint, char *buf, size_t n, int max_cha
     if (n > sizeof(tmp)) n = sizeof(tmp);
     memset(tmp, 0, sizeof(tmp));
     SwkbdButton btn = swkbdInputText(&kb, tmp, n);
+    dbg_log("kbd: button %d text '%s'", (int)btn, tmp);
     if (btn != SWKBD_BUTTON_CONFIRM) return false;
     strncpy(buf, tmp, n - 1);
     buf[n - 1] = 0;

@@ -251,7 +251,7 @@ static void draw_bottom(void) {
             float px = COL_X + (i % 3) * (cw + 4), py = CANVAS_Y + (i / 3) * 26;
             bool on = i == 5 ? s_canvas.eraser : (!s_canvas.eraser && s_canvas.color == i);
             ui_rrect_border(px, py, cw, 22, 6, 2, RGB(DRAW_COLORS[i]), C_INK);
-            if (on) ui_rrect_border(px + 2, py + 2, cw - 4, 22 - 4, 4, 2, RGBA(0, 0), i == 0 ? C_WHITE : C_INK);
+            if (on) ui_rrect_outline(px + 2, py + 2, cw - 4, 22 - 4, 4, 2, i == 0 ? C_WHITE : C_INK);
             if (i == 5) ui_text_v(px + cw / 2, py, 22, 8, C_INK, ALIGN_CENTER, FONT_HEAD, tr(S_ERASER));
         }
         float py = CANVAS_Y + 2 * 26 + 1;
@@ -260,7 +260,7 @@ static void draw_bottom(void) {
         for (int i = 0; i < 3; i++) {
             float dx = COL_X + 13 + i * 26, dy = py + 11;
             ui_circle(dx, dy, dots[i], C_INK);
-            if (s_canvas.pen == i) ui_circle_border(dx, dy, dots[i] + 4, 2, RGBA(0, 0), C_GREEN);
+            if (s_canvas.pen == i) ui_circle_outline(dx, dy, dots[i] + 4, 2, C_GREEN);
         }
         float cy = py + 22 + 5;
         ui_rrect_border(COL_X, cy, 78, 22, 6, 2, C_WHITE, C_INK);

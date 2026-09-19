@@ -7,36 +7,33 @@
 #define TEX_PX 64          // next power of two
 #define AVATAR_SLOTS 20    // 20 × 2 variants × 16 KB = 640 KB of linear heap
 
-// ---- Tiled texture upload ------------------------------------------------------------
-// The PICA200 stores textures in 8×8 tiles with Morton-ordered texels.
+// ---- Texture upload ---------------------------------------------------------------------
+// The PICA200 wants 8×8-tiled, Morton-ordered texels with v running bottom-up.
+// Rather than swizzle by hand, hand a linear top-down image to the GPU's
+// display-transfer engine with FLIP_VERT + OUT_TILED — the same layout tex3ds
+// produces, so citro2d's usual subtexture (top = 1, bottom = 1 - h/th) is upright.
 
-static inline u32 morton_interleave(u32 x, u32 y) {
-    u32 i = (x & 7) | ((y & 7) << 8);
-    i = (i ^ (i << 2)) & 0x1313;
-    i = (i ^ (i << 1)) & 0x1515;
-    i = (i | (i >> 7)) & 0x3F;
-    return i;
-}
+#define TRANSFER_FLAGS                                                                                 \
+    (GX_TRANSFER_FLIP_VERT(1) | GX_TRANSFER_OUT_TILED(1) | GX_TRANSFER_RAW_COPY(0) |                    \
+     GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGBA8) | \
+     GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
 
-// Texture v runs from memory row 0 (v = 0) upward, the way tex3ds lays images
-// out, so image row 0 goes to memory row (tex->height - 1): the image sits at
-// the top of v-space and a subtexture with top = 1, bottom = 1 - h/th shows it
-// upright.
 void tex_upload_rgba(C3D_Tex *tex, const u8 *rgba, int w, int h, int stride) {
-    u32 *dst = (u32 *)tex->data;
     const int tw = tex->width, th = tex->height;
-    for (int y = 0; y < h; y++) {
+    u32 *lin = (u32 *)linearAlloc((size_t)tw * th * 4);
+    if (!lin) return;
+    memset(lin, 0, (size_t)tw * th * 4);
+    for (int y = 0; y < h && y < th; y++) {
         const u8 *row = rgba + (size_t)y * stride * 4;
-        int ty = th - 1 - y;
-        for (int x = 0; x < w; x++) {
-            u32 r = row[x * 4 + 0], g = row[x * 4 + 1], b = row[x * 4 + 2], a = row[x * 4 + 3];
-            // GPU_RGBA8: u32 value R<<24 | G<<16 | B<<8 | A (bytes in memory: A B G R)
-            u32 v = (r << 24) | (g << 16) | (b << 8) | a;
-            u32 off = ((ty & ~7) * tw + (x & ~7) * 8) + morton_interleave(x, ty);
-            dst[off] = v;
+        u32 *dst = lin + (size_t)y * tw;
+        for (int x = 0; x < w && x < tw; x++) {
+            // Linear RGBA8 for the transfer engine is stored as ABGR in memory (u32 = R<<24|G<<16|B<<8|A).
+            dst[x] = ((u32)row[x * 4] << 24) | ((u32)row[x * 4 + 1] << 16) | ((u32)row[x * 4 + 2] << 8) | row[x * 4 + 3];
         }
     }
-    GSPGPU_FlushDataCache(tex->data, tex->size);
+    GSPGPU_FlushDataCache(lin, (size_t)tw * th * 4);
+    C3D_SyncDisplayTransfer(lin, GX_BUFFER_DIM(tw, th), (u32 *)tex->data, GX_BUFFER_DIM(tw, th), TRANSFER_FLAGS);
+    linearFree(lin);
 }
 
 // ---- Cache ---------------------------------------------------------------------------------
@@ -168,7 +165,7 @@ void avatar_put(const char *uid, const u8 *rgba, int size) {
         C3D_TexSetFilter(&s->tex[v], GPU_LINEAR, GPU_LINEAR);
     }
     free(tmp);
-    // Row 0 was written at the top of the texture; texture v runs bottom→top, so top = 1.
+    // FLIP_VERT put image row 0 at the top of v-space: sample from top = 1 down.
     s->sub.width = size;
     s->sub.height = size;
     s->sub.left = 0.0f;

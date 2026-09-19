@@ -82,6 +82,8 @@ export HFILES         := $(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_sh
                          $(addsuffix .h,$(subst .,_,$(BINFILES))) \
                          $(GFXFILES:.t3s=.h)
 
+ICONPNGS  := $(notdir $(wildcard gfx/icons/*.png))
+export ICON_T3XFILES := $(patsubst %.png, $(GFXBUILD)/icons/%.t3x, $(ICONPNGS))
 export ROMFS_T3XFILES := $(patsubst %.t3s, $(GFXBUILD)/%.t3x, $(GFXFILES))
 export T3XHFILES      := $(patsubst %.t3s, $(BUILD)/%.h, $(GFXFILES))
 
@@ -120,7 +122,7 @@ FONTS := $(ROMFS)/nunito-extrabold.bcfnt $(ROMFS)/nunito-black.bcfnt
 .PHONY: all clean fonts cia
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS) fonts $(ROMFS_T3XFILES) $(T3XHFILES)
+all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS) fonts $(ROMFS_T3XFILES) $(T3XHFILES) $(ICON_T3XFILES)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 $(BUILD):
@@ -156,6 +158,12 @@ clean:
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(TARGET).cia $(GFXBUILD) $(FONTS) banner.bnr icon.icn
 
 #---------------------------------------------------------------------------------
+# Icons: any PNG dropped in gfx/icons/ becomes romfs:/gfx/icons/<name>.t3x (see ui_icon).
+$(GFXBUILD)/icons/%.t3x : gfx/icons/%.png
+	@mkdir -p $(GFXBUILD)/icons
+	@echo icon $(notdir $<)
+	@tex3ds -f rgba8888 -z auto -o $@ $<
+
 $(GFXBUILD)/%.t3x $(BUILD)/%.h : %.t3s
 	@echo $(notdir $<)
 	@tex3ds -i $< -H $(BUILD)/$*.h -d $(DEPSDIR)/$*.d -o $(GFXBUILD)/$*.t3x

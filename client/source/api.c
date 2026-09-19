@@ -4,6 +4,7 @@
 #include "mii.h"
 #include "net.h"
 #include "store.h"
+#include "dbg.h"
 #include "theme.h"
 #include <math.h>
 #include <stdio.h>
@@ -453,6 +454,7 @@ static bool parse_message(cJSON *it, Message *m) {
 // ---- Chat ------------------------------------------------------------------------------------------------
 
 const char *api_chat_room(void) { return g_chat.room; }
+const char *api_global_room(void) { return g_settings.chat_lang == LANG_FR ? "global-fr" : "global-en"; }
 
 void api_chat_open(const char *room) {
     net_cancel_tag(TAG_CHAT_POLL);
@@ -491,6 +493,7 @@ static void poll_done(int status, cJSON *json, void *user) {
 }
 
 void api_chat_poll(ApiDone done, void *user) {
+    dbg_log("api: poll room='%s' since=%lld", g_chat.room, (long long)g_chat.newest_ts);
     if (!g_chat.room[0]) return;
     char path[128];
     char base[96];

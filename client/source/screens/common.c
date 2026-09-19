@@ -199,7 +199,7 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             float vw = voice_bubble_width(m, 1.0f, NULL, tmp, sizeof(tmp));
             float vx = mine ? x + w - vw : bx;
             voice_bubble(vx, by, m, mine, style, 1.0f);
-            if (i == selected) ui_rrect_border(vx - 3, by - 3, vw + 6, bubble_h + 6, r + 3, 2, RGBA(0, 0), C_ORANGE);
+            if (i == selected) ui_rrect_outline(vx - 3, by - 3, vw + 6, bubble_h + 6, r + 3, 2, C_ORANGE);
             if (mine && style == LOG_NAVY) {
                 char meta[40], t[8];
                 ui_format_time(t, sizeof(t), m->ts ? m->ts : (int64_t)time(NULL) * 1000);

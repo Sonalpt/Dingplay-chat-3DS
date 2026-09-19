@@ -13,7 +13,18 @@
 static C2D_TextBuf s_textbuf;
 static C2D_Font s_fonts[2];
 static float s_linefeed[2];
-static C3D_Tex s_dots_tex;
+// Optional artwork: romfs:/gfx/icons/<name>.t3x replaces the vector fallback of ui_icon().
+static const char *const ICON_FILES[] = {
+    [ICON_GLOBE] = "global", [ICON_PEOPLE] = "multiplayer", [ICON_USER] = "user", [ICON_GEAR] = "settings",
+    [ICON_SEND] = "send", [ICON_PLUS] = "add", [ICON_SCAN] = "return", [ICON_LOCK] = "lock", [ICON_MIC] = "mic",
+    [ICON_PLAY] = "play", [ICON_PAUSE] = "pause", [ICON_ADD_FRIEND] = "add-friend", [ICON_CHECK] = "check",
+    [ICON_RADIO] = "radio", [ICON_APPLE] = "apple", [ICON_PLAYSTORE] = "playstore", [ICON_PENCIL] = "pencil",
+};
+#define ICON_COUNT (sizeof(ICON_FILES) / sizeof(ICON_FILES[0]))
+static C2D_SpriteSheet s_icon_sheets[ICON_COUNT];
+static C2D_Image s_icon_imgs[ICON_COUNT];
+static u8 s_icon_state[ICON_COUNT];  // 0 untried, 1 loaded, 2 missing
+static C3D_Tex s_dots_tex[2];  // 0 = white dots (orange/blue panels), 1 = ink dots (white/cream panels)
 static bool s_dots_ok;
 
 // ---- Init --------------------------------------------------------------------------
@@ -29,30 +40,33 @@ static float font_linefeed(C2D_Font font) {
     return 30.0f;
 }
 
-// 128×128 tile with a 9×9 grid of soft 1.5 px dots (pitch 14.2 px). White with
-// alpha so it can be tinted to any colour at draw time.
-static void build_dots_texture(void) {
+// 128×128 tile with a 9×9 grid of soft 1.5 px dots (pitch 14.2 px). Colour and
+// alpha are baked in (rgba(255,255,255,.3) / rgba(36,31,26,.17) as in the CSS).
+static bool build_dots_texture(C3D_Tex *tex, u8 r, u8 g, u8 b, float alpha) {
     const int N = 128;
-    if (!C3D_TexInit(&s_dots_tex, N, N, GPU_RGBA8)) return;
-    u32 *px = (u32 *)malloc(N * N * 4);
-    if (!px) return;
+    if (!C3D_TexInit(tex, N, N, GPU_RGBA8)) return false;
+    u8 *px = (u8 *)malloc(N * N * 4);
+    if (!px) return false;
     const float pitch = N / 9.0f;
     for (int y = 0; y < N; y++) {
         for (int x = 0; x < N; x++) {
-            // distance to nearest dot centre on the 9×9 lattice
             float fx = fmodf(x + 0.5f, pitch) - pitch / 2, fy = fmodf(y + 0.5f, pitch) - pitch / 2;
             float d = sqrtf(fx * fx + fy * fy);
             float a = 1.5f + 0.5f - d;  // radius 1.5, 1 px feather
             if (a < 0) a = 0;
             if (a > 1) a = 1;
-            px[y * N + x] = (u32)(a * 255.0f) | 0xFFFFFF00;  // memory: A,B,G,R → value R<<24|G<<16|B<<8|A
+            u8 *p = px + (y * N + x) * 4;
+            p[0] = r;
+            p[1] = g;
+            p[2] = b;
+            p[3] = (u8)(a * alpha * 255.0f);
         }
     }
-    tex_upload_rgba(&s_dots_tex, (const u8 *)px, N, N, N);
+    tex_upload_rgba(tex, px, N, N, N);
     free(px);
-    C3D_TexSetWrap(&s_dots_tex, GPU_REPEAT, GPU_REPEAT);
-    C3D_TexSetFilter(&s_dots_tex, GPU_LINEAR, GPU_LINEAR);
-    s_dots_ok = true;
+    C3D_TexSetWrap(tex, GPU_REPEAT, GPU_REPEAT);
+    C3D_TexSetFilter(tex, GPU_LINEAR, GPU_LINEAR);
+    return true;
 }
 
 bool ui_init(void) {
@@ -63,12 +77,17 @@ bool ui_init(void) {
     if (!s_fonts[FONT_HEAD]) s_fonts[FONT_HEAD] = s_fonts[FONT_BODY];
     s_linefeed[FONT_BODY] = font_linefeed(s_fonts[FONT_BODY]);
     s_linefeed[FONT_HEAD] = font_linefeed(s_fonts[FONT_HEAD]);
-    build_dots_texture();
+    s_dots_ok = build_dots_texture(&s_dots_tex[0], 255, 255, 255, 0.30f) && build_dots_texture(&s_dots_tex[1], 0x24, 0x1F, 0x1A, 0.17f);
     return true;
 }
 
 void ui_exit(void) {
-    if (s_dots_ok) C3D_TexDelete(&s_dots_tex);
+    for (size_t i = 0; i < ICON_COUNT; i++)
+        if (s_icon_state[i] == 1) C2D_SpriteSheetFree(s_icon_sheets[i]);
+    if (s_dots_ok) {
+        C3D_TexDelete(&s_dots_tex[0]);
+        C3D_TexDelete(&s_dots_tex[1]);
+    }
     for (int i = 0; i < 2; i++) {
         if (s_fonts[i] && !(i == FONT_HEAD && s_fonts[FONT_HEAD] == s_fonts[FONT_BODY])) C2D_FontFree(s_fonts[i]);
     }
@@ -170,6 +189,36 @@ void ui_circle_border(float cx, float cy, float r, float bw, u32 fill, u32 borde
     ui_circle(cx, cy, r - bw, fill);
 }
 
+void ui_circle_outline(float cx, float cy, float r, float bw, u32 color) {
+    const int n = (int)(r * 0.8f) + 12;
+    float rr = r - bw / 2;
+    for (int i = 0; i < n; i++) {
+        float a0 = (float)M_PI * 2 * i / n, a1 = (float)M_PI * 2 * (i + 1) / n;
+        C2D_DrawLine(cx + cosf(a0) * rr, cy + sinf(a0) * rr, color, cx + cosf(a1) * rr, cy + sinf(a1) * rr, color, bw, DEPTH);
+    }
+}
+
+void ui_rrect_outline(float x, float y, float w, float h, float r, float bw, u32 color) {
+    float m = (w < h ? w : h) / 2;
+    if (r > m) r = m;
+    // straight edges
+    ui_rect(x + r, y, w - 2 * r, bw, color);
+    ui_rect(x + r, y + h - bw, w - 2 * r, bw, color);
+    ui_rect(x, y + r, bw, h - 2 * r, color);
+    ui_rect(x + w - bw, y + r, bw, h - 2 * r, color);
+    if (r < 1) return;
+    // corner arcs
+    float cs[4][2] = {{x + r, y + r}, {x + w - r, y + r}, {x + w - r, y + h - r}, {x + r, y + h - r}};
+    float base[4] = {(float)M_PI, (float)M_PI * 1.5f, 0, (float)M_PI * 0.5f};
+    int segs = r > 8 ? 6 : 4;
+    float rr = r - bw / 2;
+    for (int c = 0; c < 4; c++)
+        for (int i = 0; i < segs; i++) {
+            float a0 = base[c] + (float)M_PI * 0.5f * i / segs, a1 = base[c] + (float)M_PI * 0.5f * (i + 1) / segs;
+            C2D_DrawLine(cs[c][0] + cosf(a0) * rr, cs[c][1] + sinf(a0) * rr, color, cs[c][0] + cosf(a1) * rr, cs[c][1] + sinf(a1) * rr, color, bw, DEPTH);
+        }
+}
+
 void ui_line(float x0, float y0, float x1, float y1, float thick, u32 color) {
     C2D_DrawLine(x0, y0, color, x1, y1, color, thick, DEPTH);
 }
@@ -231,10 +280,10 @@ void ui_dots(float x, float y, float w, float h, u32 dot_color) {
         .left = -phase, .right = -phase + w / 128.0f,
         .top = 1.0f - phase, .bottom = 1.0f - phase - h / 128.0f,
     };
-    C2D_Image img = {&s_dots_tex, &sub};
-    C2D_ImageTint tint;
-    C2D_PlainImageTint(&tint, dot_color, 1.0f);
-    C2D_DrawImageAt(img, x, y, DEPTH, &tint, 1.0f, 1.0f);
+    // dot_color only selects the variant: light dots on saturated panels, ink dots on light ones
+    bool light = ((dot_color >> 0) & 0xFF) > 0x80;  // red channel high → white dots
+    C2D_Image img = {&s_dots_tex[light ? 0 : 1], &sub};
+    C2D_DrawImageAt(img, x, y, DEPTH, NULL, 1.0f, 1.0f);
 }
 
 float ui_chip(float x, float y, float px, float padx, float pady, u32 bg, u32 fg, const char *text) {
@@ -433,12 +482,36 @@ void ui_ellipsize(char *out, size_t n, float px, UiFont font, const char *str, f
 
 // ---- Icons ----------------------------------------------------------------------------------
 
+static bool icon_sprite(UiIcon icon, float cx, float cy, float size, u32 color) {
+    if (icon >= ICON_COUNT || !ICON_FILES[icon]) return false;
+    if (s_icon_state[icon] == 0) {
+        char path[64];
+        snprintf(path, sizeof(path), "romfs:/gfx/icons/%s.t3x", ICON_FILES[icon]);
+        s_icon_sheets[icon] = C2D_SpriteSheetLoad(path);
+        if (s_icon_sheets[icon] && C2D_SpriteSheetCount(s_icon_sheets[icon]) > 0) {
+            s_icon_imgs[icon] = C2D_SpriteSheetGetImage(s_icon_sheets[icon], 0);
+            s_icon_state[icon] = 1;
+        } else {
+            s_icon_state[icon] = 2;
+        }
+    }
+    if (s_icon_state[icon] != 1) return false;
+    const C2D_Image *img = &s_icon_imgs[icon];
+    float sc = size / (float)(img->subtex->width > img->subtex->height ? img->subtex->width : img->subtex->height);
+    // Artwork is white on transparent; tint it to the requested colour.
+    C2D_ImageTint tint;
+    C2D_PlainImageTint(&tint, color, 1.0f);
+    C2D_DrawImageAt(*img, cx - img->subtex->width * sc / 2, cy - img->subtex->height * sc / 2, DEPTH, &tint, sc, sc);
+    return true;
+}
+
 void ui_icon(UiIcon icon, float cx, float cy, float size, u32 color) {
+    if (icon_sprite(icon, cx, cy, size, color)) return;
     float s = size / 2;  // half size
     switch (icon) {
         case ICON_GLOBE: {
             float t = size > 20 ? 2.2f : 1.6f;
-            ui_circle_border(cx, cy, s, t, RGBA(0, 0), color);
+            ui_circle_outline(cx, cy, s, t, color);
             ui_line(cx - s, cy, cx + s, cy, t, color);
             ui_line(cx, cy - s, cx, cy + s, t, color);
             // meridian ellipse approximated with 12 segments
@@ -560,7 +633,7 @@ void ui_wifi_bars(float x, float y, int bars, u32 on, u32 off) {
 }
 
 void ui_battery(float x, float y, float frac, u32 color) {
-    ui_rrect_border(x, y, 16, 8, 2, 1.5f, RGBA(0, 0), color);
+    ui_rrect_outline(x, y, 16, 8, 2, 1.5f, color);
     ui_rect(x + 16, y + 2.5f, 1.5f, 3, color);
     float w = (16 - 5) * frac;
     if (w > 0) ui_rect(x + 2.5f, y + 2.5f, w, 3, color);

@@ -4,6 +4,7 @@
 #include "../api.h"
 #include "../kbd.h"
 #include "../net.h"
+#include "../dbg.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -71,7 +72,7 @@ static void clamp_scroll(void) {
 static void open_chat_global(void) {
     ChatArg a;
     memset(&a, 0, sizeof(a));
-    strcpy(a.room, "global");
+    strncpy(a.room, api_global_room(), sizeof(a.room) - 1);
     strncpy(a.title, tr(S_GLOBAL_ROOM), sizeof(a.title) - 1);
     a.kind = 0;
     a.count = g_session.players_online;
@@ -122,6 +123,7 @@ static void new_room(void) {
 }
 
 static void activate(int row) {
+    dbg_log("friends: activate row %d on tab %d", row, s_tab);
     if (s_tab == TAB_FRIENDS) {
         if (row < 0) open_chat_global();
         else if (row < g_friends_count) open_chat_friend(&g_friends[row]);
@@ -218,6 +220,7 @@ static void update(const Input *in) {
             float ly = in->touch.py - LIST_Y + s_scroll - 8;
             int r = (int)(ly / (ROW_H + ROW_GAP));
             float within = ly - r * (ROW_H + ROW_GAP);
+            dbg_log("friends: list tap row %d (rows %d, within %.0f, sel %d)", r, rows, within, s_sel);
             if (r >= 0 && r < rows && within <= ROW_H) {
                 int idx = r + first;
                 if (s_tab == TAB_REQUESTS) {
@@ -338,14 +341,14 @@ static void draw_bottom(void) {
                 snprintf(n, sizeof(n), "%d \xE2\x80\xBA", g_session.players_online);
                 ui_text_v(x + w - 10, y, ROW_H, 10, C_WHITE, ALIGN_RIGHT, FONT_HEAD, n);
             }
-            if (sel) ui_rrect_border(x - 2, y - 2, w + 4, ROW_H + 4, 12, 2, RGBA(0, 0), C_INK);
+            if (sel) ui_rrect_outline(x - 2, y - 2, w + 4, ROW_H + 4, 12, 2, C_INK);
             continue;
         }
         if (s_tab == TAB_FRIENDS) {
             const Friend *f = &g_friends[idx];
             bool online = f->status != FSTATUS_OFFLINE;
             ui_rrect_border(x, y, w, ROW_H, 10, 2, C_WHITE, C_INK);
-            if (sel) ui_rrect_border(x + 2, y + 2, w - 4, ROW_H - 4, 8, 2, RGBA(0, 0), C_GREEN);
+            if (sel) ui_rrect_outline(x + 2, y + 2, w - 4, ROW_H - 4, 8, 2, C_GREEN);
             u32 dim = online ? 255 : 153;
             ui_circle(x + 13, y + ROW_H / 2, 4, online ? C_GREEN : C_STONE);
             ui_avatar(x + 21, y + 6, 22, true, f->uid, f->username, 0, 0);
@@ -377,7 +380,7 @@ static void draw_bottom(void) {
         } else {
             const ThemedRoom *rm = &g_rooms[idx];
             ui_rrect_border(x, y, w, ROW_H, 10, 2, C_WHITE, C_INK);
-            if (sel) ui_rrect_border(x + 2, y + 2, w - 4, ROW_H - 4, 8, 2, RGBA(0, 0), C_BLUE);
+            if (sel) ui_rrect_outline(x + 2, y + 2, w - 4, ROW_H - 4, 8, 2, C_BLUE);
             ui_rrect(x + 8, y + 6, 22, 22, 7, C_BLUE);
             ui_icon(ICON_PEOPLE, x + 19, y + 17, 12, C_WHITE);
             ui_text(x + 38, y + 3, 12, C_INK, ALIGN_LEFT, FONT_HEAD, rm->name);

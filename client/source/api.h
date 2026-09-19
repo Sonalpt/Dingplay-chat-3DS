@@ -47,6 +47,7 @@ void api_chat_send_voice(const u8 *dpv, size_t len, ApiDone done, void *user);
 // Fetches a voice note's DPV bytes into the message (msg->voice). done gets status only.
 void api_media_fetch(Message *msg, ApiDone done, void *user);
 const char *api_chat_room(void);
+const char *api_global_room(void);       // "global-fr" | "global-en" from g_settings.chat_lang
 
 // Themed rooms
 void api_rooms_list(ApiDone done, void *user);

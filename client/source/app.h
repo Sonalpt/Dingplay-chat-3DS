@@ -110,6 +110,7 @@ typedef struct {
     bool discoverable;
     int sync_seconds;       // 3 / 5 / 15
     Lang lang;
+    Lang chat_lang;         // which world-chat room (FR / EN); independent of the UI language
 } Settings;
 
 typedef struct {

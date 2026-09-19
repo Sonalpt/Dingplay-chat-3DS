@@ -25,6 +25,9 @@ void ui_rrect_border(float x, float y, float w, float h, float r, float bw, u32 
 void ui_card(float x, float y, float w, float h, float r, float bw, u32 fill, u32 border, float dx, float dy, u32 shadow);
 void ui_circle(float cx, float cy, float r, u32 color);
 void ui_circle_border(float cx, float cy, float r, float bw, u32 fill, u32 border);
+// Outlines only (nothing painted inside): use these instead of a transparent fill.
+void ui_rrect_outline(float x, float y, float w, float h, float r, float bw, u32 color);
+void ui_circle_outline(float cx, float cy, float r, float bw, u32 color);
 void ui_dashed_rrect(float x, float y, float w, float h, float r, float bw, u32 color);
 void ui_dashed_circle(float cx, float cy, float r, float bw, u32 color);
 void ui_line(float x0, float y0, float x1, float y1, float thick, u32 color);

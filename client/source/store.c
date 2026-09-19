@@ -30,11 +30,12 @@ void store_load_settings(Settings *s) {
     s->discoverable = true;
     s->sync_seconds = 5;
     s->lang = LANG_EN;
+    s->chat_lang = LANG_EN;
 
     // Language default from the console's system language.
     u8 sys_lang = CFG_LANGUAGE_EN;
     if (R_SUCCEEDED(cfguInit())) {
-        if (R_SUCCEEDED(CFGU_GetSystemLanguage(&sys_lang)) && sys_lang == CFG_LANGUAGE_FR) s->lang = LANG_FR;
+        if (R_SUCCEEDED(CFGU_GetSystemLanguage(&sys_lang)) && sys_lang == CFG_LANGUAGE_FR) s->lang = s->chat_lang = LANG_FR;
         cfguExit();
     }
 
@@ -56,6 +57,7 @@ void store_load_settings(Settings *s) {
             int v = atoi(val);
             s->sync_seconds = (v == 3 || v == 5 || v == 15) ? v : 5;
         } else if (strcmp(key, "lang") == 0) s->lang = strcmp(val, "fr") == 0 ? LANG_FR : LANG_EN;
+        else if (strcmp(key, "chat_lang") == 0) s->chat_lang = strcmp(val, "fr") == 0 ? LANG_FR : LANG_EN;
     }
     fclose(f);
 }
@@ -63,9 +65,9 @@ void store_load_settings(Settings *s) {
 void store_save_settings(const Settings *s) {
     FILE *f = fopen(CONFIG_FILE, "w");
     if (!f) return;
-    fprintf(f, "relay=%s\nstay_signed_in=%d\nnotif_sound=%d\ndiscoverable=%d\nsync_seconds=%d\nlang=%s\n", s->relay,
+    fprintf(f, "relay=%s\nstay_signed_in=%d\nnotif_sound=%d\ndiscoverable=%d\nsync_seconds=%d\nlang=%s\nchat_lang=%s\n", s->relay,
             s->stay_signed_in ? 1 : 0, s->notif_sound ? 1 : 0, s->discoverable ? 1 : 0, s->sync_seconds,
-            s->lang == LANG_FR ? "fr" : "en");
+            s->lang == LANG_FR ? "fr" : "en", s->chat_lang == LANG_FR ? "fr" : "en");
     fclose(f);
 }
 

@@ -118,9 +118,9 @@ static void draw_top(void) {
     // radar
     float cx = 16 + 75, cy = TOP_H / 2;
     ui_circle(cx, cy, 75, RGBA(0xFFFFFF, 31));
-    ui_circle_border(cx, cy, 75, 3, RGBA(0, 0), C_WHITE);
-    ui_circle_border(cx, cy, 50, 2, RGBA(0, 0), RGBA(0xFFFFFF, 153));
-    ui_circle_border(cx, cy, 26, 2, RGBA(0, 0), RGBA(0xFFFFFF, 153));
+    ui_circle_outline(cx, cy, 75, 3, C_WHITE);
+    ui_circle_outline(cx, cy, 50, 2, RGBA(0xFFFFFF, 153));
+    ui_circle_outline(cx, cy, 26, 2, RGBA(0xFFFFFF, 153));
     // sweep
     float a = fmodf(s_pulse * 1.2f, (float)M_PI * 2);
     ui_line(cx, cy, cx + cosf(a) * 73, cy + sinf(a) * 73, 2, RGBA(0xFFFFFF, 120));

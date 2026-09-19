@@ -3,6 +3,7 @@
 #include "app.h"
 #include "api.h"
 #include "avatar.h"
+#include "dbg.h"
 #include "local/udsnet.h"
 #include "net.h"
 #include "store.h"
@@ -43,7 +44,10 @@ static int s_depth;
 static bool s_quit;
 static bool s_transitioning;  // guards against nested enter/leave inside update
 
+static const char *const SCREEN_NAMES[SCR_COUNT] = {"boot", "login", "home", "friends", "chat", "lobby", "create_room", "local_chat", "manage_room", "settings"};
+
 static void enter_screen(ScreenId id, void *arg) {
+    dbg_log("screen -> %s (depth %d)", SCREEN_NAMES[id], s_depth);
     s_transitioning = true;
     SCREENS[id]->enter(arg);
     s_transitioning = false;
@@ -133,7 +137,9 @@ static void wifi_poll(void) {
 static void services_init(void) {
     romfsInit();
     store_init();
+    dbg_init();
     store_load_settings(&g_settings);
+    dbg_log("relay=%s lang=%d token=%s", g_settings.relay, g_settings.lang, g_settings.token[0] ? "yes" : "no");
     i18n_set(g_settings.lang);
     if (store_load_token(g_settings.token, sizeof(g_settings.token))) {
         // validated by the boot screen's GET /me; cleared there if stale
@@ -200,6 +206,8 @@ int main(int argc, char **argv) {
             hidTouchRead(&in.touch);  // keep the last position on release
             if (in.touch_down) in.touch_start = in.touch;
         }
+        if (in.touch_up) dbg_log("tap up at %d,%d (down at %d,%d) on %s", in.touch.px, in.touch.py, in.touch_start.px, in.touch_start.py, SCREEN_NAMES[app_current()]);
+        if (in.down & ~KEY_TOUCH) dbg_log("keys down 0x%08lx on %s", (unsigned long)(in.down & ~KEY_TOUCH), SCREEN_NAMES[app_current()]);
         if (in.down & KEY_START && app_current() != SCR_HOME && app_current() != SCR_BOOT) {
             // START anywhere but Home: go home first (Home's START quits).
             app_reset_to(SCR_HOME, NULL);

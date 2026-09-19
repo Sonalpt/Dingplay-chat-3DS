@@ -89,5 +89,4 @@ Message shape returned to the console:
 
 Apply `firestore.rules.snippet` to the mobile project's rules. No new indexes are needed for
 world chat (the existing `channel + createdAt` composite index covers the `since` query).
-`consoleRooms` needs a composite index on `closed ASC, lastMessageAt DESC` — Firestore prints the
-one-click creation link in the relay log the first time `/rooms` is hit.
+`consoleRooms` is queried on `closed` only and sorted in memory, so no index is needed there either.

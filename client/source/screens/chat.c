@@ -5,6 +5,8 @@
 #include "../api.h"
 #include "../kbd.h"
 #include "../net.h"
+#include "../store.h"
+#include "../dbg.h"
 #include "../voice.h"
 #include <stdio.h>
 #include <string.h>
@@ -104,6 +106,7 @@ static void play_selected(void) {
 
 static void enter(void *arg) {
     if (arg) s_arg = *(ChatArg *)arg;
+    dbg_log("chat: enter room=%s kind=%d", s_arg.room, s_arg.kind);
     api_chat_open(s_arg.room);
     s_compose[0] = 0;
     s_countdown = 0;
@@ -119,6 +122,7 @@ static void enter(void *arg) {
 }
 
 static void send_text(void) {
+    dbg_log("chat: send_text '%s'", s_compose);
     if (!s_compose[0]) return;
     api_chat_send_text(s_compose, send_done, NULL);
     s_compose[0] = 0;
@@ -176,15 +180,32 @@ static void update(const Input *in) {
         if (s_voice_sel >= 0) play_selected();
     }
 
+    // FR / EN world-chat switch (global room only), top-right of the JUMP TO strip
+    if (s_arg.kind == 0) {
+        for (int i = 0; i < 2; i++) {
+            float cx = BOT_W - 10 - 2 * 30 + i * 32;
+            if (ui_tap(in, cx, 6, 30, 18)) {
+                Lang want = i == 0 ? LANG_FR : LANG_EN;
+                if (want != g_settings.chat_lang) {
+                    g_settings.chat_lang = want;
+                    store_save_settings(&g_settings);
+                    ChatArg a = s_arg;
+                    strncpy(a.room, api_global_room(), sizeof(a.room) - 1);
+                    app_replace(SCR_CHAT, &a);
+                }
+                return;
+            }
+        }
+    }
     // JUMP TO strip
     float jx = 10, jy = 8 + ui_line_height(9) + 5;
     for (int i = 0; i < 4; i++) {
         if (!ui_tap(in, jx + i * 48, jy, 40, 46)) continue;
         if (i == 0) {
-            if (strcmp(s_arg.room, "global") != 0) {
+            if (s_arg.kind != 0) {
                 ChatArg a;
                 memset(&a, 0, sizeof(a));
-                strcpy(a.room, "global");
+                strncpy(a.room, api_global_room(), sizeof(a.room) - 1);
                 strncpy(a.title, tr(S_GLOBAL_ROOM), sizeof(a.title) - 1);
                 a.count = g_session.players_online;
                 app_replace(SCR_CHAT, &a);
@@ -256,8 +277,11 @@ static void draw_top(void) {
         ui_icon(s_arg.kind == 2 ? ICON_PEOPLE : ICON_GLOBE, x + 7, 12, 14, C_WHITE);
     }
     x += 21;
-    ui_text_v(x, 0, 24, 12, C_WHITE, ALIGN_LEFT, FONT_HEAD, s_arg.title);
-    x += ui_text_width(12, FONT_HEAD, s_arg.title) + 7;
+    char title[48];
+    if (s_arg.kind == 0) snprintf(title, sizeof(title), "%s · %s", s_arg.title, g_settings.chat_lang == LANG_FR ? "FR" : "EN");
+    else snprintf(title, sizeof(title), "%s", s_arg.title);
+    ui_text_v(x, 0, 24, 12, C_WHITE, ALIGN_LEFT, FONT_HEAD, title);
+    x += ui_text_width(12, FONT_HEAD, title) + 7;
     if (s_arg.kind != 1) {
         char n[16];
         snprintf(n, sizeof(n), "%d", s_arg.kind == 0 ? g_session.players_online : s_arg.count);
@@ -298,8 +322,17 @@ static void draw_bottom(void) {
     ui_rect(0, 0, BOT_W, BOT_H, C_CREAM);
     // JUMP TO
     ui_text(10, 8, 9, C_MUTED, ALIGN_LEFT, FONT_HEAD, tr(S_JUMP_TO));
+    if (s_arg.kind == 0) {
+        // FR / EN chips
+        for (int i = 0; i < 2; i++) {
+            bool on = (g_settings.chat_lang == LANG_FR) == (i == 0);
+            float cx = BOT_W - 10 - 2 * 30 + i * 32;
+            ui_rrect_border(cx, 6, 30, 18, 6, 2, on ? C_INK : C_WHITE, C_INK);
+            ui_text_v(cx + 15, 6, 18, 9, on ? C_WHITE : C_INK, ALIGN_CENTER, FONT_HEAD, i == 0 ? "FR" : "EN");
+        }
+    }
     float jy = 8 + ui_line_height(9) + 5;
-    jump_item(10, jy, g_lang == LANG_FR ? "Global" : "Global", NULL, strcmp(s_arg.room, "global") == 0, true, false);
+    jump_item(10, jy, "Global", NULL, s_arg.kind == 0, true, false);
     for (int i = 0; i < 2; i++) {
         const Friend *f = jump_friend(i);
         if (f) jump_item(10 + 48 * (i + 1), jy, f->username, f->uid, false, false, false);

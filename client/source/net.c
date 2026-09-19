@@ -1,4 +1,5 @@
 #include "net.h"
+#include "dbg.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -199,6 +200,7 @@ NetJob *net_request(const char *method, const char *path, const void *body, size
     j->tag = tag;
     if (key) strncpy(j->key, key, sizeof(j->key) - 1);
     j->status = -100;
+    dbg_log("net queue %s %s (%u bytes) tag %d", j->method, j->url, (unsigned)j->body_len, j->tag);
     LightLock_Lock(&s_lock);
     if (s_queue_tail) s_queue_tail->next = j;
     else s_queue = j;
@@ -217,6 +219,7 @@ void net_pump(void) {
         if (j) s_pending--;
         LightLock_Unlock(&s_lock);
         if (!j) break;
+        dbg_log("net done %s %s -> %d (%u bytes)%s", j->method, j->url, j->status, (unsigned)j->resp_len, j->cancelled ? " [cancelled]" : "");
         if (!j->cancelled && j->cb) j->cb(j);
         free_job(j);
     }

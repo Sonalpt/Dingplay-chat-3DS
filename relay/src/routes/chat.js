@@ -16,11 +16,15 @@ const MEDIA_TTL_MS = 60 * 60 * 1000; // mobile app: voice/images expire after 1 
 
 // ---- Reading ---------------------------------------------------------------------
 
+// World chat is queried on createdAt alone (single-field auto index) and the
+// channel is filtered here: the mobile app only has a (channel, createdAt ASC)
+// composite, and the "latest page" needs DESC. Over-fetch to compensate.
 function collectionFor(room, uid) {
-  if (room.kind === 'global') return db.collection('worldChat').where('channel', '==', room.channel);
+  if (room.kind === 'global') return db.collection('worldChat');
   if (room.kind === 'dm') return db.collection('privateChat').doc(uid).collection(room.peer);
   return roomMessages(room.roomId);
 }
+const OVERFETCH = 3;
 
 // Flattens a Firestore message into the compact shape the console parses.
 function normalize(doc, now) {
@@ -183,14 +187,16 @@ module.exports = async function chatRoutes(app) {
     const now = Date.now();
 
     let q = collectionFor(room, req.uid);
+    const fetch = room.kind === 'global' ? limit * OVERFETCH : limit;
     let docs;
     if (since > 0) {
-      q = q.where('createdAt', '>', Timestamp.fromMillis(since)).orderBy('createdAt', 'asc').limit(limit);
+      q = q.where('createdAt', '>', Timestamp.fromMillis(since)).orderBy('createdAt', 'asc').limit(fetch);
       docs = (await q.get()).docs;
     } else {
-      q = q.orderBy('createdAt', 'desc').limit(limit);
+      q = q.orderBy('createdAt', 'desc').limit(fetch);
       docs = (await q.get()).docs.reverse();
     }
+    if (room.kind === 'global') docs = docs.filter((d) => d.get('channel') === room.channel);
 
     const blocked = await blockedSetFor(req.uid);
     const messages = [];
@@ -198,6 +204,7 @@ module.exports = async function chatRoutes(app) {
       const m = normalize(doc, now);
       if (m && !blocked.has(m.uid)) messages.push(m);
     }
+    if (messages.length > limit) messages.splice(0, messages.length - limit);
 
     // Opening a DM clears its unread badge (mobile: markConversationRead).
     if (room.kind === 'dm') {
@@ -208,7 +215,7 @@ module.exports = async function chatRoutes(app) {
       roomsCol().doc(room.roomId).set({ presence: { [req.uid]: now } }, { merge: true }).catch(() => {});
     }
 
-    return { messages, now, more: docs.length >= limit };
+    return { messages, now, more: docs.length >= fetch };
   });
 
   // Text and drawings: POST /chat/:room  { type: "text", text } | { type: "draw", draw: {w,h,s} }
