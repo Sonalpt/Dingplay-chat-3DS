@@ -98,6 +98,8 @@ static void join_done(int status, cJSON *json, void *user) {
         cJSON *n = cJSON_GetObjectItemCaseSensitive(json, "name");
         if (cJSON_IsString(r)) strncpy(a.room, r->valuestring, sizeof(a.room) - 1);
         if (cJSON_IsString(n)) strncpy(a.title, n->valuestring, sizeof(a.title) - 1);
+        cJSON *h = cJSON_GetObjectItemCaseSensitive(json, "hostUid");
+        a.is_host = cJSON_IsString(h) && strcmp(h->valuestring, g_session.uid) == 0;
         a.kind = 2;
         app_go(SCR_CHAT, &a);
     } else {

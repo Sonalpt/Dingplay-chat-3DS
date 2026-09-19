@@ -10,6 +10,7 @@ typedef struct {
     char peer_uid[UID_LEN];   // dm only (avatar)
     int kind;                 // 0 global · 1 dm · 2 themed
     int count;                // people here (global / themed)
+    bool is_host;             // themed: I created it → "Close room" control
 } ChatArg;
 
 typedef enum { LOG_NAVY = 0, LOG_CREAM = 1 } LogStyle;

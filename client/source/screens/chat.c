@@ -21,6 +21,7 @@ static bool s_emoji_open;
 static float s_caret;
 static int s_last_count;
 static bool s_first_poll;
+static float s_close_arm;   // > 0: "Close room" was tapped once, waiting for the confirming tap
 
 static const char *EMOTICONS[8] = {":)", ":D", ";)", ":(", "<3", "^^", "xD", "!!"};
 
@@ -122,6 +123,7 @@ static void enter(void *arg) {
     s_voice_mode = false;
     s_emoji_open = false;
     s_first_poll = true;
+    s_close_arm = 0;
     s_last_count = g_chat.count;
     voice_panel_reset();
     if (g_friends_count == 0) api_friends(NULL, NULL);
@@ -134,6 +136,22 @@ static void send_text(void) {
     api_chat_send_text(s_compose, send_done, NULL);
     s_compose[0] = 0;
 }
+
+static void close_done(int status, cJSON *json, void *user) {
+    (void)json;
+    (void)user;
+    if (status == 200) {
+        app_toast(tr(S_ROOM_CLOSED), C_GREEN);
+        app_back();
+    } else {
+        app_toast(tr(S_ERR_RELAY), C_RED);
+    }
+}
+
+// Host-only "Close room" chip, top-right of the JUMP TO strip (where the global room has FR / EN).
+#define CLOSE_W 78
+#define CLOSE_X (BOT_W - 10 - CLOSE_W)
+static bool show_close(void) { return s_arg.kind == 2 && s_arg.is_host && strncmp(s_arg.room, "room-", 5) == 0; }
 
 // layout
 #define JUMP_H 62
@@ -202,6 +220,19 @@ static void update(const Input *in) {
                 }
                 return;
             }
+        }
+    }
+    if (show_close()) {
+        if (s_close_arm > 0) s_close_arm -= in->dt;
+        if (ui_tap(in, CLOSE_X, 6, CLOSE_W, 18)) {
+            if (s_close_arm > 0) {
+                s_close_arm = 0;
+                api_room_close(s_arg.room + 5, close_done, NULL);
+            } else {
+                s_close_arm = 4.0f;
+                app_toast(tr(S_TAP_AGAIN_CLOSE), C_ORANGE);
+            }
+            return;
         }
     }
     // JUMP TO strip
@@ -338,6 +369,12 @@ static void draw_bottom(void) {
             ui_rrect_border(cx, 6, 30, 18, 6, 2, on ? C_INK : C_WHITE, C_INK);
             ui_text_v(cx + 15, 6, 18, 9, on ? C_WHITE : C_INK, ALIGN_CENTER, FONT_HEAD, i == 0 ? "FR" : "EN");
         }
+    }
+    if (show_close()) {
+        bool armed = s_close_arm > 0;
+        ui_rrect_border(CLOSE_X, 6, CLOSE_W, 18, 6, 2, armed ? C_RED : C_WHITE, armed ? C_RED : C_INK);
+        ui_icon(ICON_CLOSE, CLOSE_X + 11, 15, 8, armed ? C_WHITE : C_RED);
+        ui_text_v(CLOSE_X + 20, 6, 18, 9, armed ? C_WHITE : C_INK, ALIGN_LEFT, FONT_HEAD, tr(S_CLOSE_ROOM));
     }
     float jy = 8 + ui_line_height(9) + 5;
     jump_item(10, jy, "Global", NULL, s_arg.kind == 0, true, false);

@@ -54,6 +54,7 @@ void api_rooms_list(ApiDone done, void *user);
 void api_room_create(const char *name, const char *topic, ApiDone done, void *user);
 void api_room_join(const char *id, ApiDone done, void *user);
 void api_room_leave(const char *id);
+void api_room_close(const char *id, ApiDone done, void *user);  // host only
 
 // Message helpers shared with local mode
 Message *msglist_push(MessageList *l, const Message *m);   // dedupes by id; evicts oldest

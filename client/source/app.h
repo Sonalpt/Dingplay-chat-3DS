@@ -97,6 +97,7 @@ typedef struct {
     char name[ROOM_NAME_LEN];
     char topic[36];
     char host[NAME_LEN];
+    char host_uid[UID_LEN];
     int count;
 } ThemedRoom;
 

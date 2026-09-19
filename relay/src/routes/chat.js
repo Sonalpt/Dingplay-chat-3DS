@@ -230,7 +230,7 @@ module.exports = async function chatRoutes(app) {
     const body = req.body || {};
 
     if (body.type === 'text') {
-      const text = String(body.text || '').replace(/[ --]/g, '').trim();
+      const text = String(body.text || '').replace(/[\x00-\x08\x0b-\x1f]/g, '').trim();
       if (!text) return reply.code(400).send({ error: 'empty' });
       if (text.length > config.limits.textChars) return reply.code(413).send({ error: 'too_long' });
       const id = await writeMessage(room, req.uid, { ...baseMessage(me, req.uid), messageContent: text }, text, null);

@@ -647,6 +647,7 @@ static void rooms_done(int status, cJSON *json, void *user) {
             copy_str(r->name, sizeof(r->name), it, "name");
             copy_str(r->topic, sizeof(r->topic), it, "topic");
             copy_str(r->host, sizeof(r->host), it, "host");
+            copy_str(r->host_uid, sizeof(r->host_uid), it, "hostUid");
             r->count = (int)num(it, "count", 0);
         }
     }
@@ -667,6 +668,12 @@ void api_room_join(const char *id, ApiDone done, void *user) {
     char path[64];
     snprintf(path, sizeof(path), "/rooms/%s/join", id);
     post_json(path, NULL, done, user, TAG_ROOMS);
+}
+
+void api_room_close(const char *id, ApiDone done, void *user) {
+    char path[64];
+    snprintf(path, sizeof(path), "/rooms/%s/close", id);
+    post_json(path, NULL, done, user, TAG_MISC);
 }
 
 void api_room_leave(const char *id) {
