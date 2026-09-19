@@ -23,7 +23,7 @@ void store_init(void) {
 
 void store_load_settings(Settings *s) {
     // Defaults (mockup 09: 5 s sync, sound on, discoverable on)
-    strcpy(s->relay, "http://192.168.1.10:8080");
+    strcpy(s->relay, "http://192.168.144.18:8080");  // Rémy's Mac on the LAN; override in config.ini
     s->token[0] = 0;
     s->stay_signed_in = true;
     s->notif_sound = true;
