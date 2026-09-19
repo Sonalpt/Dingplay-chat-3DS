@@ -24,6 +24,7 @@ function sign(payloadB64) {
 function issueToken(uid) {
   const payload = {
     u: uid,
+    i: Date.now(),
     e: Date.now() + config.sessionDays * 24 * 3600 * 1000,
     n: crypto.randomBytes(6).toString('hex'),
   };
@@ -31,8 +32,9 @@ function issueToken(uid) {
   return `${p}.${sign(p)}`;
 }
 
-// Tokens explicitly signed out of. In-memory: a relay restart forgets them,
-// which is acceptable because the console also deletes its copy on sign-out.
+// Tokens explicitly signed out of. In-memory for the fast path; sign-out also
+// stamps users/{uid}.consoleSessionsBefore so every token issued earlier stays
+// dead across relay restarts (checked in requireAuth through the user cache).
 const revoked = new Set();
 
 function verifyToken(token) {
@@ -54,9 +56,16 @@ function verifyToken(token) {
   return payload;
 }
 
-function revokeToken(token) {
+async function revokeToken(token) {
   const payload = verifyToken(token);
-  if (payload) revoked.add(payload.n);
+  if (!payload) return;
+  revoked.add(payload.n);
+  try {
+    await db.collection('users').doc(payload.u).set({ consoleSessionsBefore: Date.now() }, { merge: true });
+    invalidateUser(payload.u);
+  } catch (err) {
+    console.warn('revokeToken: could not stamp user', err.message);
+  }
 }
 
 // ---- Login ----------------------------------------------------------------
@@ -113,6 +122,13 @@ async function requireAuth(req, reply) {
   const token = bearer(req);
   const payload = token && verifyToken(token);
   if (!payload) {
+    reply.code(401).send({ error: 'unauthorized' });
+    return reply;
+  }
+  // Sessions issued before the user's last explicit sign-out are dead (cached lookup).
+  const user = await getUser(payload.u);
+  const before = Number(user?.consoleSessionsBefore) || 0;
+  if (before && (!payload.i || payload.i < before)) {
     reply.code(401).send({ error: 'unauthorized' });
     return reply;
   }

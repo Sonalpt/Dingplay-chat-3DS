@@ -17,7 +17,8 @@ bool kbd_prompt(KbdKind kind, const char *hint, char *buf, size_t n, int max_cha
     if (n > sizeof(tmp)) n = sizeof(tmp);
     memset(tmp, 0, sizeof(tmp));
     SwkbdButton btn = swkbdInputText(&kb, tmp, n);
-    dbg_log("kbd: button %d text '%s'", (int)btn, tmp);
+    if (kind == KBD_PASSWORD) dbg_log("kbd: button %d (password, %u chars)", (int)btn, (unsigned)strlen(tmp));
+    else dbg_log("kbd: button %d text '%s'", (int)btn, tmp);
     if (btn != SWKBD_BUTTON_CONFIRM) return false;
     strncpy(buf, tmp, n - 1);
     buf[n - 1] = 0;

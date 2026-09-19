@@ -4,13 +4,16 @@
   "description": "HTTP relay between Dingplay Chat console clients (3DS / 2DS) and Firebase. Consoles never talk to Firebase directly.",
   "main": "src/server.js",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node --require ./test/_stub.js --test \"test/**/*.test.js\""
   },
   "dependencies": {
+    "@fastify/rate-limit": "^11.2.0",
     "fastify": "^5.2.0",
     "firebase-admin": "^13.0.2",
     "jimp": "^1.6.0"

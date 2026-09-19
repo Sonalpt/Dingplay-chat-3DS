@@ -42,7 +42,11 @@ function sendRgba(reply, rgba, size) {
 }
 
 module.exports = async function avatarRoutes(app) {
-  app.get('/avatar/:uid', async (req, reply) => {
+  // Unauthenticated (the login screen shows the guest's Mii), so per-IP limited harder
+  // than the rest: a console needs at most a few dozen avatars per screen.
+  const mediaLimit = { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } };
+
+  app.get('/avatar/:uid', mediaLimit, async (req, reply) => {
     const size = Number(req.query.s) || 48;
     if (!SIZES.has(size)) return reply.code(400).send({ error: 'bad_size' });
     const uid = String(req.params.uid);
@@ -66,7 +70,7 @@ module.exports = async function avatarRoutes(app) {
 
   // Mii faces: converted to Mii Studio data and rendered by Nintendo's endpoint,
   // then cached by the Studio payload (same Mii → same bytes → one render).
-  app.post('/mii/render', async (req, reply) => {
+  app.post('/mii/render', mediaLimit, async (req, reply) => {
     const size = Number(req.query.s) || 48;
     if (!SIZES.has(size)) return reply.code(400).send({ error: 'bad_size' });
     const body = Buffer.isBuffer(req.body) ? req.body : null;

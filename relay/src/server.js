@@ -21,6 +21,17 @@ app.addHook('onSend', async (req, reply) => {
   reply.removeHeader('x-powered-by');
 });
 
+// Per-IP rate limits. The relay is reachable from anywhere on plain HTTP and every
+// request costs a Firestore read (or a Mii Studio render), so cap what one address
+// can do: a console polling every 3 s plus avatars stays far below this.
+app.register(require('@fastify/rate-limit'), {
+  global: true,
+  max: 240,
+  timeWindow: '1 minute',
+  addHeadersOnExceeding: { 'x-ratelimit-limit': false, 'x-ratelimit-remaining': false, 'x-ratelimit-reset': false },
+  addHeaders: { 'x-ratelimit-limit': false, 'x-ratelimit-remaining': false, 'x-ratelimit-reset': false, 'retry-after': true },
+});
+
 app.setErrorHandler((err, req, reply) => {
   const status = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
   if (status >= 500) req.log.error(err);

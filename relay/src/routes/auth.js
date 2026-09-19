@@ -17,11 +17,27 @@ function publicProfile(uid, data) {
 
 module.exports = async function authRoutes(app) {
   // Screen 02. Body: { login: "kev_ding" | "kev@x.fr", password }.
-  app.post('/auth/login', async (req, reply) => {
+  // Brute-force protection: 8 attempts / 5 min per IP, and 8 / 5 min per account name
+  // regardless of IP. Firebase also throttles, but all our attempts share the relay's
+  // IP, so without this one attacker could lock every console out of Firebase.
+  const loginLimit = { config: { rateLimit: { max: 8, timeWindow: '5 minutes' } } };
+  const perAccount = new Map();
+  function accountLimited(name) {
+    const now = Date.now();
+    const rec = perAccount.get(name) || { n: 0, since: now };
+    if (now - rec.since > 5 * 60 * 1000) Object.assign(rec, { n: 0, since: now });
+    rec.n++;
+    perAccount.set(name, rec);
+    if (perAccount.size > 10000) perAccount.clear();
+    return rec.n > 8;
+  }
+
+  app.post('/auth/login', loginLimit, async (req, reply) => {
     const { login, password } = req.body || {};
     if (typeof login !== 'string' || typeof password !== 'string' || !login.trim() || !password) {
       return reply.code(400).send({ error: 'missing_credentials' });
     }
+    if (accountLimited(login.trim().toLowerCase())) return reply.code(429).send({ error: 'too_many_attempts' });
     const result = await auth.loginWithPassword(login, password);
     if (!result.ok) return reply.code(401).send({ error: result.reason });
 
@@ -31,7 +47,7 @@ module.exports = async function authRoutes(app) {
   });
 
   app.post('/auth/logout', { preHandler: auth.requireAuth }, async (req) => {
-    auth.revokeToken(req.token);
+    await auth.revokeToken(req.token);
     return { ok: true };
   });
 

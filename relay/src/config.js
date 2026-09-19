@@ -31,7 +31,7 @@ const config = {
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
   cacheDir: path.resolve(process.env.CACHE_DIR || path.join(__dirname, '..', 'cache')),
   // A session token lives this long before the console has to log in again.
-  sessionDays: 90,
+  sessionDays: 30,
   // Presence: a user counts as online when lastConnection is within this window.
   onlineWindowMs: 5 * 60 * 1000,
   // How often one console may bump its own lastConnection.
