@@ -91,7 +91,7 @@ static void tile(float x, u32 fill, u32 shadow, UiIcon icon, const char *title, 
 static void draw_bottom(void) {
     ui_rect(0, 0, BOT_W, BOT_H, C_CREAM);
     tile(12, C_GREEN, C_GREEN_SHADOW, ICON_GLOBE, tr(S_ONLINE), g_session.logged_in ? tr(S_ONLINE_SUB) : tr(S_SIGN_IN), C_GREEN_TINT, false);
-    tile(160, C_BLUE, C_BLUE_SHADOW, ICON_PEOPLE, tr(S_LOCAL), local_in_room() ? tr(S_BACK_TO_ROOM) : tr(S_LOCAL_SUB), C_BLUE_TINT, false);
+    tile(160, C_BLUE, C_BLUE_SHADOW, ICON_GAMEPAD, tr(S_LOCAL), local_in_room() ? tr(S_BACK_TO_ROOM) : tr(S_LOCAL_SUB), C_BLUE_TINT, false);
     ui_card(12, BTN_Y, 148, BTN_H, 12, 3, C_WHITE, C_INK, 0, 4, C_INK);
     ui_icon(ICON_USER, 12 + 74 - 30, BTN_Y + 22, 18, C_INK);
     ui_text_v(12 + 74 - 30 + 16, BTN_Y, BTN_H, 13, C_INK, ALIGN_LEFT, FONT_HEAD, tr(S_FRIENDS));

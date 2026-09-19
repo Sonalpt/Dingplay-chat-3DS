@@ -7,8 +7,8 @@
 #include <string.h>
 
 static C2D_SpriteSheet s_sheet;
-static C2D_Image s_logo;
-static bool s_logo_ok;
+static C2D_Image s_wordmark;
+static bool s_wordmark_ok;
 
 typedef enum { ST_INIT, ST_WIFI, ST_RELAY, ST_SESSION, ST_DONE, ST_FAIL_WIFI, ST_FAIL_RELAY } Step;
 static Step s_step;
@@ -16,23 +16,25 @@ static float s_timer;
 static float s_progress;
 static bool s_waiting;
 
-void boot_load_logo(void) {
-    if (s_logo_ok) return;
-    s_sheet = C2D_SpriteSheetLoad("romfs:/gfx/logo.t3x");
+// The "dingplay" wordmark (white letters, orange shadow) — the same artwork as the mobile app.
+void boot_load_wordmark(void) {
+    if (s_wordmark_ok) return;
+    s_sheet = C2D_SpriteSheetLoad("romfs:/gfx/wordmark.t3x");
     if (s_sheet) {
-        s_logo = C2D_SpriteSheetGetImage(s_sheet, 0);
-        s_logo_ok = true;
+        s_wordmark = C2D_SpriteSheetGetImage(s_sheet, 0);
+        s_wordmark_ok = true;
     }
 }
 
-void boot_draw_logo(float x, float y, float size) {
-    if (!s_logo_ok) {
-        ui_dashed_rrect(x, y, size, size, size * 0.24f, 3, C_INK);
-        ui_text_v(x + size / 2, y, size, size * 0.14f, C_INK, ALIGN_CENTER, FONT_HEAD, "LOGO");
-        return;
+// Draws the wordmark centred on cx, `w` pixels wide; returns its height.
+float boot_draw_wordmark(float cx, float y, float w) {
+    if (!s_wordmark_ok) {
+        ui_text_shadow(cx, y, w * 0.18f, C_WHITE, C_INK, 3, ALIGN_CENTER, FONT_HEAD, "dingplay");
+        return ui_line_height(w * 0.18f);
     }
-    float sc = size / s_logo.subtex->width;
-    C2D_DrawImageAt(s_logo, x, y, 0.5f, NULL, sc, sc);
+    float sc = w / s_wordmark.subtex->width;
+    C2D_DrawImageAt(s_wordmark, cx - w / 2, y, 0.5f, NULL, sc, sc);
+    return s_wordmark.subtex->height * sc;
 }
 
 static void go_next(void) {
@@ -63,7 +65,7 @@ static void me_done(int status, cJSON *json, void *user) {
 
 static void enter(void *arg) {
     (void)arg;
-    boot_load_logo();
+    boot_load_wordmark();
     s_step = ST_INIT;
     s_timer = 0;
     s_progress = 0.05f;
@@ -142,12 +144,9 @@ static void draw_top(void) {
     ui_rect(0, 0, TOP_W, TOP_H, C_ORANGE);
     ui_dots(0, 0, TOP_W, TOP_H, RGBA(0xFFFFFF, 77));
     float cx = TOP_W / 2;
-    float box = 74, bx = cx - box / 2, by = 46;
-    ui_rrect(bx, by, box, box, 18, RGBA(0xFFFFFF, 217));
-    boot_draw_logo(bx + 7, by + 7, box - 14);
-    ui_text_shadow(cx, by + box + 10, 27, C_WHITE, C_INK, 3, ALIGN_CENTER, FONT_HEAD, tr(S_APP_NAME));
+    float wh = boot_draw_wordmark(cx, 44, 260);
     float cw = ui_text_width(9, FONT_HEAD, tr(S_FOR_3DS)) + 18;
-    ui_chip(cx - cw / 2, by + box + 10 + ui_line_height(27) + 8, 9, 9, 4, C_INK, C_GOLD, tr(S_FOR_3DS));
+    ui_chip(cx - cw / 2, 44 + wh + 2, 9, 9, 4, C_INK, C_GOLD, tr(S_FOR_3DS));
 }
 
 static void draw_bottom(void) {

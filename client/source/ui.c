@@ -15,10 +15,9 @@ static C2D_Font s_fonts[2];
 static float s_linefeed[2];
 // Optional artwork: romfs:/gfx/icons/<name>.t3x replaces the vector fallback of ui_icon().
 static const char *const ICON_FILES[] = {
-    [ICON_GLOBE] = "global", [ICON_PEOPLE] = "multiplayer", [ICON_USER] = "user", [ICON_GEAR] = "settings",
-    [ICON_SEND] = "send", [ICON_PLUS] = "add", [ICON_SCAN] = "return", [ICON_LOCK] = "lock", [ICON_MIC] = "mic",
-    [ICON_PLAY] = "play", [ICON_PAUSE] = "pause", [ICON_ADD_FRIEND] = "add-friend", [ICON_CHECK] = "check",
-    [ICON_RADIO] = "radio", [ICON_APPLE] = "apple", [ICON_PLAYSTORE] = "playstore", [ICON_PENCIL] = "pencil",
+    [ICON_GLOBE] = "global",       [ICON_PEOPLE] = "friends", [ICON_USER] = "user",   [ICON_GEAR] = "settings",
+    [ICON_SEND] = "send",          [ICON_PLUS] = "add",       [ICON_SCAN] = "scan",   [ICON_ADD_FRIEND] = "add-friend",
+    [ICON_GAMEPAD] = "multiplayer", [ICON_CLOSE] = "close",   [ICON_PENCIL] = NULL,  // the rest stay vector
 };
 #define ICON_COUNT (sizeof(ICON_FILES) / sizeof(ICON_FILES[0]))
 static C2D_SpriteSheet s_icon_sheets[ICON_COUNT];
@@ -617,6 +616,13 @@ void ui_icon(UiIcon icon, float cx, float cy, float size, u32 color) {
             C2D_DrawTriangle(cx - s * 0.7f, cy - s, RGB(0x4285F4), cx + s * 0.8f, cy, RGB(0xFFD400), cx - s * 0.7f, cy + s, RGB(0xEA4335), DEPTH);
             break;
         }
+        case ICON_GAMEPAD:
+            ui_rrect(cx - s, cy - s * 0.55f, size, s * 1.1f, s * 0.5f, color);
+            break;
+        case ICON_CLOSE:
+            ui_line(cx - s * 0.7f, cy - s * 0.7f, cx + s * 0.7f, cy + s * 0.7f, 2, color);
+            ui_line(cx + s * 0.7f, cy - s * 0.7f, cx - s * 0.7f, cy + s * 0.7f, 2, color);
+            break;
         case ICON_PENCIL: {
             ui_line(cx - s * 0.6f, cy + s * 0.6f, cx + s * 0.5f, cy - s * 0.5f, s * 0.5f, color);
             C2D_DrawTriangle(cx - s * 0.85f, cy + s * 0.85f, color, cx - s * 0.45f, cy + s * 0.75f, color, cx - s * 0.75f, cy + s * 0.45f, color, DEPTH);

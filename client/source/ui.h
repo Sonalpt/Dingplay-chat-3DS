@@ -56,7 +56,7 @@ void ui_text_shadow(float x, float y, float px, u32 color, u32 shadow, float dy,
 // ---- Icons (vector, drawn with primitives) -----------------------------------------
 typedef enum {
     ICON_GLOBE, ICON_PEOPLE, ICON_USER, ICON_GEAR, ICON_SEND, ICON_PLUS, ICON_SCAN, ICON_LOCK, ICON_MIC,
-    ICON_PLAY, ICON_PAUSE, ICON_ADD_FRIEND, ICON_CHECK, ICON_RADIO, ICON_APPLE, ICON_PLAYSTORE, ICON_PENCIL
+    ICON_PLAY, ICON_PAUSE, ICON_ADD_FRIEND, ICON_CHECK, ICON_RADIO, ICON_APPLE, ICON_PLAYSTORE, ICON_PENCIL, ICON_GAMEPAD, ICON_CLOSE
 } UiIcon;
 void ui_icon(UiIcon icon, float cx, float cy, float size, u32 color);
 void ui_wifi_bars(float x, float y, int bars, u32 on, u32 off);

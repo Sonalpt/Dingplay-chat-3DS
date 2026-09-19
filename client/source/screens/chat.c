@@ -104,9 +104,16 @@ static void play_selected(void) {
     }
 }
 
+static C2D_SpriteSheet s_bg_sheet;  // Global Room only: the world-chat artwork behind the log
+static C2D_Image s_bg;
+
 static void enter(void *arg) {
     if (arg) s_arg = *(ChatArg *)arg;
     dbg_log("chat: enter room=%s kind=%d", s_arg.room, s_arg.kind);
+    if (s_arg.kind == 0 && !s_bg_sheet) {
+        s_bg_sheet = C2D_SpriteSheetLoad("romfs:/gfx/world-bg.t3x");
+        if (s_bg_sheet) s_bg = C2D_SpriteSheetGetImage(s_bg_sheet, 0);
+    }
     api_chat_open(s_arg.room);
     s_compose[0] = 0;
     s_countdown = 0;
@@ -266,6 +273,7 @@ static void update(const Input *in) {
 
 static void draw_top(void) {
     ui_rect(0, 0, TOP_W, TOP_H, C_NAVY);
+    if (s_arg.kind == 0 && s_bg_sheet) C2D_DrawImageAt(s_bg, 0, 0, 0.5f, NULL, 1.0f, 1.0f);
     // a little depth: darker band at the bottom like the photo gradient
     ui_rect(0, TOP_H - 60, TOP_W, 60, RGBA(0x05101F, 90));
     // header
@@ -376,6 +384,10 @@ static void draw_bottom(void) {
 }
 
 static void leave(void) {
+    if (s_bg_sheet) {
+        C2D_SpriteSheetFree(s_bg_sheet);
+        s_bg_sheet = NULL;
+    }
     net_cancel_tag(TAG_CHAT_POLL);
     net_cancel_tag(TAG_MEDIA);
     voice_panel_reset();

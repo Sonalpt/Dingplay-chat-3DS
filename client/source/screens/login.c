@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void boot_draw_logo(float x, float y, float size);
+float boot_draw_wordmark(float cx, float y, float w);
 
 static char s_user[64], s_pass[64];
 static bool s_show_pass;
@@ -95,13 +95,7 @@ static void draw_top(void) {
     ui_rect(0, 0, TOP_W, TOP_H, C_ORANGE);
     ui_dots(0, 0, TOP_W, TOP_H, RGBA(0xFFFFFF, 77));
     float cx = TOP_W / 2;
-    // logo + wordmark
-    float ww = ui_text_width(24, FONT_HEAD, "DINGPLAY");
-    float total = 40 + 10 + ww;
-    float lx = cx - total / 2, ly = 18;
-    ui_rrect(lx, ly, 40, 40, 11, RGBA(0xFFFFFF, 217));
-    boot_draw_logo(lx + 4, ly + 4, 32);
-    ui_text_shadow(lx + 50, ly + (40 - ui_line_height(24)) / 2, 24, C_WHITE, C_INK, 3, ALIGN_LEFT, FONT_HEAD, "DINGPLAY");
+    boot_draw_wordmark(cx, 8, 120);
     // sign-in card
     float cw = 300, ch = 56, cy0 = 70;
     ui_card(cx - cw / 2, cy0, cw, ch, 14, 3, C_WHITE, C_INK, 4, 4, C_INK);
