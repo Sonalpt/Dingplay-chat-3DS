@@ -78,6 +78,32 @@ libctru/citro headers (so it survives across machines); relay `npm test` → 7/7
 
 ---
 
+## 1c. Session 3 (2026-09-19, later) — where things stand, and the exact next step
+
+Shipped: v0.1.0 is public (https://github.com/Sonalpt/Dingplay-chat-3DS/releases/tag/v0.1.0,
+CIA + 3dsx), the Universal-DB listing is pending review
+(https://github.com/Universal-Team/db/pull/671), the relay runs on the Vultr box
+(`relay/README.md` → Production / TLS).
+
+**Paused right here:** the relay was switched to **HTTPS with a pinned CA** and the app was
+rebuilt as **0.1.1** (commit `f5dd3df`), but the real console has not run that build yet
+(no charger). The emulator connects fine, but it does not validate certificates; the 2DS does.
+
+Resume checklist:
+1. 2DS charged, ftpd on → upload `client/dingplay-chat.3dsx` to `/3ds/` and
+   `client/dingplay-chat.cia` to `/cias/` (install with FBI). The installed 0.1.0 cannot
+   reach the relay any more (it speaks plain HTTP) — expected.
+2. Launch; if the boot screen reaches Home and `/3ds/dingplay-chat/debug.log` shows
+   `net done GET https://199.247.12.221:8000/health -> 200`, TLS works on hardware.
+   If it shows a negative status on every https request, the 3DS SSL module rejected the
+   handshake or the certificate: check cipher/TLS-version choices in `relay/src/server.js`
+   (`tlsOptions`) and the cert (`relay/tls/`, IP SANs) before anything else.
+3. Then `gh release create v0.1.1 client/dingplay-chat.cia client/dingplay-chat.3dsx`
+   (notes: HTTPS + pinned CA, rate limits, crisp fonts, artwork, Close-room). Universal-DB
+   picks up the newest release automatically.
+4. Still to do by Rémy: restrict the Firebase Web API key to the Identity Toolkit API;
+   reboot the Vultr box for the kernel update (`ssh relay reboot`); back up `relay/tls/ca.key`.
+
 ## 2. What has and has not been verified
 
 | piece                                                       | verified how                                                                                                                                     | not yet verified                                             |
