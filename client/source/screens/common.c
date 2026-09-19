@@ -266,6 +266,19 @@ void top_brand_bar(void) {
     status_cluster(TOP_W - 9, 0, C_WHITE);
 }
 
+void icon_label(float x, float y, float w, float h, UiIcon icon, float icon_px, float px, u32 color, const char *label) {
+    const float gap = 5;
+    float tw = ui_text_width(px, FONT_HEAD, label);
+    float total = icon_px + gap + tw;
+    if (total > w - 8) {  // label wider than the box: drop the icon rather than overlap
+        ui_text_v(x + w / 2, y, h, px, color, ALIGN_CENTER, FONT_HEAD, label);
+        return;
+    }
+    float left = x + (w - total) / 2;
+    ui_icon(icon, left + icon_px / 2, y + h / 2, icon_px, color);
+    ui_text_v(left + icon_px + gap, y, h, px, color, ALIGN_LEFT, FONT_HEAD, label);
+}
+
 void footer_bar(float y, float h, const char *left, const char *right, u32 bg, u32 fg_left, u32 fg_right) {
     ui_rect(0, y, BOT_W, h, bg);
     if (bg != C_INK) ui_rect(0, y, BOT_W, 2, C_INK);

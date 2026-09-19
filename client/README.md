@@ -37,9 +37,10 @@ client/
 3. `make` → `dingplay-chat.3dsx` + `.smdh` (copy to `sdmc:/3ds/` and launch from the Homebrew Launcher).
 4. Optional `make cia` needs `bannertool` + `makerom` on PATH and a `banner.png` (256×128) + `banner.wav`.
 
-The Makefile converts `../fonts/Nunito/static/Nunito-ExtraBold.ttf` and `Nunito-Black.ttf`
-to BCFNT at 24 pt with `mkbcfnt`; if either is missing at runtime the app falls back to the
-system font.
+The Makefile converts `../fonts/Nunito/static/Nunito-Regular.ttf` (body) and `Nunito-Bold.ttf`
+(headings) to BCFNT with `mkbcfnt` at two sizes — 12 pt for small UI text, 24 pt for headings —
+so small text is drawn near 1:1 and stays crisp; if a file is missing at runtime the app falls
+back to the other size, then to the system font.
 
 ## On the console
 

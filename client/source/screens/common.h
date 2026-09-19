@@ -33,6 +33,9 @@ void status_cluster(float right, float y, u32 fg);
 void top_brand_bar(void);
 
 // Bottom footer bar: 28/30 px sand strip with left/right hints.
+// Icon + label centred together in a box, sized from the label's real width so
+// "Envoyer" and "Send" both fit.
+void icon_label(float x, float y, float w, float h, UiIcon icon, float icon_px, float px, u32 color, const char *label);
 void footer_bar(float y, float h, const char *left, const char *right, u32 bg, u32 fg_left, u32 fg_right);
 
 // Hold-to-record panel (screen 07b): bars, "0:04 / 0:10", big red button, CANCEL / SEND.

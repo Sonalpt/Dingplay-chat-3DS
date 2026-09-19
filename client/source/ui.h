@@ -6,7 +6,7 @@
 #include "app.h"
 #include "theme.h"
 
-typedef enum { FONT_BODY = 0, FONT_HEAD = 1 } UiFont;  // ExtraBold / Black
+typedef enum { FONT_BODY = 0, FONT_HEAD = 1 } UiFont;  // Nunito Regular / Bold
 
 typedef enum { ALIGN_LEFT = 0, ALIGN_CENTER = 1, ALIGN_RIGHT = 2 } UiAlign;
 

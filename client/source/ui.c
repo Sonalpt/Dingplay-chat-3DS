@@ -11,8 +11,14 @@
 #define DEPTH 0.5f
 
 static C2D_TextBuf s_textbuf;
-static C2D_Font s_fonts[2];
-static float s_linefeed[2];
+// Two atlases per face: 12 pt for small UI text, 24 pt for headings and big glyphs.
+// Drawing a 24 pt atlas at 9 px aliases badly on the real screen; a near-1:1 atlas stays crisp.
+#define TIER_SMALL 0
+#define TIER_LARGE 1
+#define TIER_SPLIT_PX 13.0f  // requested px above this use the large atlas
+static C2D_Font s_fonts[2][2];    // [UiFont][tier]
+static float s_linefeed[2][2];
+static float s_textscale[2][2];  // citro2d multiplies every scale by 30 / cellHeight
 // Optional artwork: romfs:/gfx/icons/<name>.t3x replaces the vector fallback of ui_icon().
 static const char *const ICON_FILES[] = {
     [ICON_GLOBE] = "global",       [ICON_PEOPLE] = "friends", [ICON_USER] = "user",   [ICON_GEAR] = "settings",
@@ -37,6 +43,21 @@ static float font_linefeed(C2D_Font font) {
     CFNT_s *sys = fontGetSystemFont();
     if (sys && fontGetInfo(sys)->lineFeed > 0) return (float)fontGetInfo(sys)->lineFeed;
     return 30.0f;
+}
+
+// citro2d normalises fonts to the system font's 30 px cell: C2D_DrawText and
+// C2D_FontCalcGlyphPos multiply the caller's scale by 30 / cellHeight. Our
+// sizing has to undo that or a 12 pt atlas draws twice as large as a 24 pt one.
+static float font_textscale(C2D_Font font) {
+    u8 cell = 30;
+    if (font) {
+        FINF_s *finf = C2D_FontGetInfo(font);
+        if (finf && finf->tglp && finf->tglp->cellHeight > 0) cell = finf->tglp->cellHeight;
+    } else {
+        CFNT_s *sys = fontGetSystemFont();
+        if (sys && fontGetGlyphInfo(sys)->cellHeight > 0) cell = fontGetGlyphInfo(sys)->cellHeight;
+    }
+    return 30.0f / (float)cell;
 }
 
 // 128×128 tile with a 9×9 grid of soft 1.5 px dots (pitch 14.2 px). Colour and
@@ -71,11 +92,22 @@ static bool build_dots_texture(C3D_Tex *tex, u8 r, u8 g, u8 b, float alpha) {
 bool ui_init(void) {
     s_textbuf = C2D_TextBufNew(TEXT_BUF_GLYPHS);
     if (!s_textbuf) return false;
-    s_fonts[FONT_BODY] = C2D_FontLoad("romfs:/nunito-extrabold.bcfnt");
-    s_fonts[FONT_HEAD] = C2D_FontLoad("romfs:/nunito-black.bcfnt");
-    if (!s_fonts[FONT_HEAD]) s_fonts[FONT_HEAD] = s_fonts[FONT_BODY];
-    s_linefeed[FONT_BODY] = font_linefeed(s_fonts[FONT_BODY]);
-    s_linefeed[FONT_HEAD] = font_linefeed(s_fonts[FONT_HEAD]);
+    s_fonts[FONT_BODY][TIER_SMALL] = C2D_FontLoad("romfs:/nunito-regular-12.bcfnt");
+    s_fonts[FONT_BODY][TIER_LARGE] = C2D_FontLoad("romfs:/nunito-regular-24.bcfnt");
+    s_fonts[FONT_HEAD][TIER_SMALL] = C2D_FontLoad("romfs:/nunito-bold-12.bcfnt");
+    s_fonts[FONT_HEAD][TIER_LARGE] = C2D_FontLoad("romfs:/nunito-bold-24.bcfnt");
+    for (int f = 0; f < 2; f++) {
+        // fall back across tiers, then to the other face, then to the system font (NULL)
+        if (!s_fonts[f][TIER_SMALL]) s_fonts[f][TIER_SMALL] = s_fonts[f][TIER_LARGE];
+        if (!s_fonts[f][TIER_LARGE]) s_fonts[f][TIER_LARGE] = s_fonts[f][TIER_SMALL];
+    }
+    for (int t = 0; t < 2; t++)
+        if (!s_fonts[FONT_HEAD][t]) s_fonts[FONT_HEAD][t] = s_fonts[FONT_BODY][t];
+    for (int f = 0; f < 2; f++)
+        for (int t = 0; t < 2; t++) {
+            s_linefeed[f][t] = font_linefeed(s_fonts[f][t]);
+            s_textscale[f][t] = font_textscale(s_fonts[f][t]);
+        }
     s_dots_ok = build_dots_texture(&s_dots_tex[0], 255, 255, 255, 0.30f) && build_dots_texture(&s_dots_tex[1], 0x24, 0x1F, 0x1A, 0.17f);
     return true;
 }
@@ -87,8 +119,21 @@ void ui_exit(void) {
         C3D_TexDelete(&s_dots_tex[0]);
         C3D_TexDelete(&s_dots_tex[1]);
     }
-    for (int i = 0; i < 2; i++) {
-        if (s_fonts[i] && !(i == FONT_HEAD && s_fonts[FONT_HEAD] == s_fonts[FONT_BODY])) C2D_FontFree(s_fonts[i]);
+    {
+        // handles may be shared through the fallbacks above: free each distinct one once
+        C2D_Font freed[4];
+        int nf = 0;
+        for (int f = 0; f < 2; f++)
+            for (int t = 0; t < 2; t++) {
+                C2D_Font h = s_fonts[f][t];
+                if (!h) continue;
+                bool seen = false;
+                for (int k = 0; k < nf; k++)
+                    if (freed[k] == h) seen = true;
+                if (seen) continue;
+                freed[nf++] = h;
+                C2D_FontFree(h);
+            }
     }
     if (s_textbuf) C2D_TextBufDelete(s_textbuf);
 }
@@ -311,12 +356,25 @@ void ui_progress(float x, float y, float w, float h, float frac, u32 fg, u32 bor
 
 // ---- Text ------------------------------------------------------------------------------
 
-static inline float scale_for(float px, UiFont font) { return px * TEXT_LH_RATIO / s_linefeed[font]; }
+// Text sizes are the mockups' (a uniform bump overflowed fixed-width containers);
+// legibility comes from the near-1:1 small atlas instead. Hook kept for tuning.
+static inline float eff_px(float px) { return px; }
+static inline int tier_for(float px) { return eff_px(px) <= TIER_SPLIT_PX ? TIER_SMALL : TIER_LARGE; }
+static inline C2D_Font font_for(UiFont font, float px) { return s_fonts[font][tier_for(px)]; }
+// Scale handed to citro2d so that the glyph em comes out at `px` on screen (the
+// mockups' CSS font-size): line feed is 1.364 em, and citro2d applies textScale on top.
+static inline float scale_for(float px, UiFont font) {
+    int t = tier_for(px);
+    return eff_px(px) * TEXT_LH_RATIO / (s_linefeed[font][t] * s_textscale[font][t]);
+}
+// Multiplier for raw glyph advances (charWidth) → screen pixels.
+static inline float advance_scale(float px, UiFont font) { return scale_for(px, font) * s_textscale[font][tier_for(px)]; }
 
-float ui_line_height(float px) { return px * TEXT_LH_RATIO; }
+float ui_line_height(float px) { return eff_px(px) * TEXT_LH_RATIO; }
 
-static void parse(C2D_Text *txt, UiFont font, const char *str) {
-    if (s_fonts[font]) C2D_TextFontParse(txt, s_fonts[font], s_textbuf, str);
+static void parse(C2D_Text *txt, UiFont font, float px, const char *str) {
+    C2D_Font h = font_for(font, px);
+    if (h) C2D_TextFontParse(txt, h, s_textbuf, str);
     else C2D_TextParse(txt, s_textbuf, str);
     C2D_TextOptimize(txt);
 }
@@ -324,7 +382,7 @@ static void parse(C2D_Text *txt, UiFont font, const char *str) {
 void ui_text(float x, float y, float px, u32 color, UiAlign align, UiFont font, const char *str) {
     if (!str || !*str) return;
     C2D_Text txt;
-    parse(&txt, font, str);
+    parse(&txt, font, px, str);
     u32 flags = C2D_WithColor | (align == ALIGN_CENTER ? C2D_AlignCenter : align == ALIGN_RIGHT ? C2D_AlignRight : C2D_AlignLeft);
     float s = scale_for(px, font);
     C2D_DrawText(&txt, flags, x, y, DEPTH, s, s, color);
@@ -340,10 +398,10 @@ void ui_text_shadow(float x, float y, float px, u32 color, u32 shadow, float dy,
 }
 
 // Width from glyph advances — no text-buffer usage, cheap enough to call per word.
-static float glyph_width(UiFont font, u32 cp) {
-    if (s_fonts[font]) {
-        int gi = C2D_FontGlyphIndexFromCodePoint(s_fonts[font], cp);
-        charWidthInfo_s *cwi = C2D_FontGetCharWidthInfo(s_fonts[font], gi);
+static float glyph_width(C2D_Font h, u32 cp) {
+    if (h) {
+        int gi = C2D_FontGlyphIndexFromCodePoint(h, cp);
+        charWidthInfo_s *cwi = C2D_FontGetCharWidthInfo(h, gi);
         return cwi ? (float)cwi->charWidth : 0;
     }
     CFNT_s *sys = fontGetSystemFont();
@@ -352,7 +410,7 @@ static float glyph_width(UiFont font, u32 cp) {
     return cwi ? (float)cwi->charWidth : 0;
 }
 
-static float raw_width(UiFont font, const char *str, size_t len) {
+static float raw_width(C2D_Font h, const char *str, size_t len) {
     float w = 0;
     const u8 *p = (const u8 *)str;
     const u8 *end = p + len;
@@ -362,19 +420,20 @@ static float raw_width(UiFont font, const char *str, size_t len) {
         if (n <= 0) break;
         p += n;
         if (cp == '\n') continue;
-        w += glyph_width(font, cp);
+        w += glyph_width(h, cp);
     }
     return w;
 }
 
 float ui_text_width(float px, UiFont font, const char *str) {
     if (!str) return 0;
-    return raw_width(font, str, strlen(str)) * scale_for(px, font);
+    return raw_width(font_for(font, px), str, strlen(str)) * advance_scale(px, font);
 }
 
 int ui_text_wrap(float x, float y, float w, float px, u32 color, UiAlign align, UiFont font, const char *str, int max_lines, float line_h) {
     if (!str || !*str) return 0;
-    float s = scale_for(px, font);
+    float s = advance_scale(px, font);
+    C2D_Font h = font_for(font, px);
     if (line_h <= 0) line_h = ui_line_height(px);
     int lines = 0;
     const char *p = str;
@@ -393,8 +452,8 @@ int ui_text_wrap(float x, float y, float w, float px, u32 color, UiAlign align, 
             }
             const char *word_end = q;
             while (*word_end && *word_end != ' ' && *word_end != '\n') word_end++;
-            float ww = raw_width(font, q, word_end - q) * s;
-            float space = (q > line_start) ? raw_width(font, " ", 1) * s : 0;
+            float ww = raw_width(h, q, word_end - q) * s;
+            float space = (q > line_start) ? raw_width(h, " ", 1) * s : 0;
             if (width + space + ww <= w || q == line_start) {
                 if (q == line_start && ww > w) {
                     // single word wider than the box: cut by characters
@@ -404,7 +463,7 @@ int ui_text_wrap(float x, float y, float w, float px, u32 color, UiAlign align, 
                         u32 cp;
                         ssize_t n = decode_utf8(&cp, (const u8 *)c);
                         if (n <= 0) break;
-                        float gw = glyph_width(font, cp) * s;
+                        float gw = glyph_width(h, cp) * s;
                         if (cw + gw > w && c > q) break;
                         cw += gw;
                         c += n;
@@ -458,8 +517,9 @@ void ui_ellipsize(char *out, size_t n, float px, UiFont font, const char *str, f
         out[n - 1] = 0;
         return;
     }
-    float s = scale_for(px, font);
-    float ell = glyph_width(font, 0x2026) * s;  // "…"
+    float s = advance_scale(px, font);
+    C2D_Font h = font_for(font, px);
+    float ell = glyph_width(h, 0x2026) * s;  // "…"
     float acc = 0;
     const u8 *p = (const u8 *)str;
     size_t len = 0;
@@ -467,7 +527,7 @@ void ui_ellipsize(char *out, size_t n, float px, UiFont font, const char *str, f
         u32 cp;
         ssize_t k = decode_utf8(&cp, p);
         if (k <= 0) break;
-        float gw = glyph_width(font, cp) * s;
+        float gw = glyph_width(h, cp) * s;
         if (acc + gw + ell > w) break;
         acc += gw;
         if (len + k >= n - 4) break;

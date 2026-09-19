@@ -404,12 +404,10 @@ static void draw_bottom(void) {
         snprintf(em, sizeof(em), ":) %s", tr(S_EMOJI));
         ui_text_v(10 + bw / 2, BTN_Y, BTN_H, 11, C_INK, ALIGN_CENTER, FONT_HEAD, em);
         ui_card(10 + bw + 7, BTN_Y, bw, BTN_H, 10, 2, C_BLUE, C_INK, 0, 3, C_BLUE_SHADOW);
-        ui_icon(ICON_MIC, 10 + bw + 7 + bw / 2 - 20, BTN_Y + BTN_H / 2, 12, C_WHITE);
-        ui_text_v(10 + bw + 7 + bw / 2 + 4, BTN_Y, BTN_H, 11, C_WHITE, ALIGN_CENTER, FONT_HEAD, tr(S_VOICE));
+        icon_label(10 + bw + 7, BTN_Y, bw, BTN_H, ICON_MIC, 12, 11, C_WHITE, tr(S_VOICE));
         float sx = 10 + 2 * (bw + 7), sw = bw * 1.2f;
         ui_card(sx, BTN_Y, sw, BTN_H, 10, 2, C_GREEN, C_INK, 0, 3, C_GREEN_SHADOW);
-        ui_icon(ICON_SEND, sx + sw / 2 - 22, BTN_Y + BTN_H / 2, 15, C_WHITE);
-        ui_text_v(sx + sw / 2 + 4, BTN_Y, BTN_H, 12, C_WHITE, ALIGN_CENTER, FONT_HEAD, tr(S_SEND));
+        icon_label(sx, BTN_Y, sw, BTN_H, ICON_SEND, 15, 12, C_WHITE, tr(S_SEND));
         if (s_emoji_open) {
             float px = 10, py = FIELD_Y - 8 - 36, pw = BOT_W - 20, ph = 36;
             ui_card(px, py, pw, ph, 10, 2, C_WHITE, C_INK, 3, 3, C_INK);

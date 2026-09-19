@@ -117,7 +117,9 @@ ifneq ($(ROMFS),)
 endif
 
 FONT_SRC_DIR := $(TOPDIR)/../fonts/Nunito/static
-FONTS := $(ROMFS)/nunito-extrabold.bcfnt $(ROMFS)/nunito-black.bcfnt
+# Two atlas sizes per face: 12 pt for small UI text, 24 pt for headings (see ui.c font tiers).
+FONT_SIZES := 12 24
+FONTS := $(foreach sz,$(FONT_SIZES),$(ROMFS)/nunito-regular-$(sz).bcfnt $(ROMFS)/nunito-bold-$(sz).bcfnt)
 
 .PHONY: all clean fonts cia
 
@@ -144,13 +146,13 @@ $(ROMFS):
 # Nunito TTF → BCFNT for citro2d. mkbcfnt ships with devkitPro's tex3ds package.
 fonts: $(FONTS)
 
-$(ROMFS)/nunito-extrabold.bcfnt: $(FONT_SRC_DIR)/Nunito-ExtraBold.ttf
-	@echo mkbcfnt $(notdir $<)
-	@mkbcfnt -o $@ -s 24 $<
+$(ROMFS)/nunito-regular-%.bcfnt: $(FONT_SRC_DIR)/Nunito-Regular.ttf
+	@echo mkbcfnt $(notdir $<) $*pt
+	@mkbcfnt -o $@ -s $* $<
 
-$(ROMFS)/nunito-black.bcfnt: $(FONT_SRC_DIR)/Nunito-Black.ttf
-	@echo mkbcfnt $(notdir $<)
-	@mkbcfnt -o $@ -s 24 $<
+$(ROMFS)/nunito-bold-%.bcfnt: $(FONT_SRC_DIR)/Nunito-Bold.ttf
+	@echo mkbcfnt $(notdir $<) $*pt
+	@mkbcfnt -o $@ -s $* $<
 
 #---------------------------------------------------------------------------------
 clean:
