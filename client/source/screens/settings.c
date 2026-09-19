@@ -132,11 +132,9 @@ static void draw_top(void) {
     ui_text(26 + cw + 8, y + 8, 9, C_MUTED, ALIGN_LEFT, FONT_HEAD, tr(S_LOCAL_WIRELESS));
     ui_text(26 + cw + 8, y + 21, 12, g_settings.discoverable ? C_BLUE : C_MUTED, ALIGN_LEFT, FONT_HEAD, g_settings.discoverable ? tr(S_ON_DISCOVERABLE) : tr(S_OFF));
     y += 44 + 12;
-    // three lines: the about sentence may wrap once, then the relay line
-    ui_rrect_border(16, y, TOP_W - 32, 52, 10, 2, C_CREAM, C_INK);
-    char about[160];
-    snprintf(about, sizeof(about), "%s\n%s: %s · SELECT", tr(S_ABOUT_LINE), tr(S_RELAY), g_settings.relay);
-    ui_text_wrap(26, y + 5, TOP_W - 52, 10, RGB(0x5A5149), ALIGN_LEFT, FONT_BODY, about, 3, 0);
+    // About. The relay address is deliberately not shown (SELECT still opens the hidden editor).
+    ui_rrect_border(16, y, TOP_W - 32, 40, 10, 2, C_CREAM, C_INK);
+    ui_text_wrap(26, y + 6, TOP_W - 52, 10, RGB(0x5A5149), ALIGN_LEFT, FONT_BODY, tr(S_ABOUT_LINE), 2, 0);
 }
 
 static void row(int i, const char *label) {

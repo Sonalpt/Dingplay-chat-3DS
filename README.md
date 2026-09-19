@@ -21,5 +21,7 @@ npm start
 cd client && make          # → dingplay-chat.3dsx, copy to sdmc:/3ds/
 ```
 
-Then on the console set `relay=http://<your-machine>:8080` in
-`sdmc:/3ds/dingplay-chat/config.ini` (or via the boot screen's "Set relay address").
+The console talks to the public relay (`http://199.247.12.221:8000`, see
+`relay/README.md` → Production) out of the box. To test against a relay on your own
+machine, set `relay=http://<your-machine>:8080` in `sdmc:/3ds/dingplay-chat/config.ini`,
+or press SELECT on the Settings screen (hidden editor).

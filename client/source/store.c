@@ -23,7 +23,7 @@ void store_init(void) {
 
 void store_load_settings(Settings *s) {
     // Defaults (mockup 09: 5 s sync, sound on, discoverable on)
-    strcpy(s->relay, "http://192.168.144.18:8080");  // Rémy's Mac on the LAN; override in config.ini
+    strcpy(s->relay, RELAY_DEFAULT);
     s->token[0] = 0;
     s->stay_signed_in = true;
     s->notif_sound = true;
@@ -49,7 +49,10 @@ void store_load_settings(Settings *s) {
         char *key = line, *val = eq + 1;
         size_t n = strlen(val);
         while (n && (val[n - 1] == '\n' || val[n - 1] == '\r' || val[n - 1] == ' ')) val[--n] = 0;
-        if (strcmp(key, "relay") == 0) strncpy(s->relay, val, sizeof(s->relay) - 1);
+        if (strcmp(key, "relay") == 0) {
+            // consoles set up during LAN testing pointed at the dev Mac: move them to the public relay
+            if (strcmp(val, "http://192.168.144.18:8080") != 0) strncpy(s->relay, val, sizeof(s->relay) - 1);
+        }
         else if (strcmp(key, "stay_signed_in") == 0) s->stay_signed_in = atoi(val) != 0;
         else if (strcmp(key, "notif_sound") == 0) s->notif_sound = atoi(val) != 0;
         else if (strcmp(key, "discoverable") == 0) s->discoverable = atoi(val) != 0;

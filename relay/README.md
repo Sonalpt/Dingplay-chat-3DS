@@ -36,6 +36,36 @@ The 3DS `httpc` stack cannot negotiate modern TLS, so the relay must stay
 reachable over **plain HTTP** on a port the console can hit. Terminate TLS in
 front of it only if you keep an HTTP listener for consoles too.
 
+## Production (Vultr box, shared with the 3LWO relay)
+
+Live at `http://199.247.12.221:8000` — the client's `RELAY_DEFAULT`. It runs as the
+`dingplay-relay` systemd unit ([dingplay-relay.service](dingplay-relay.service)) on the
+same VPS as the 3LWO Python relay; the two never touch. Port 8000 because that project's
+iptables NAT owns 80/443/8080/8443/993/2053.
+
+Layout on the box:
+
+| Path | What |
+|---|---|
+| `/opt/dingplay-chat/relay` | source + `node_modules` (root-owned, read-only to the service) |
+| `/etc/dingplay-relay/.env` | config, `PORT=8000`, fresh `RELAY_SECRET` (root:dingplay, 640) |
+| `/etc/dingplay-relay/serviceAccount.json` | Firebase service account (same perms) |
+| `/var/lib/dingplay-relay/cache` | avatar / media cache, the only writable dir |
+
+The GitHub repo is private and the box has no deploy key, so deploys are an rsync from a
+checkout (`ssh relay` works from Rémy's Mac — see `~/.ssh/config`):
+
+```bash
+rsync -az --delete --exclude node_modules --exclude .env --exclude serviceAccount.json \
+      --exclude cache relay/ relay:/opt/dingplay-chat/relay/
+ssh relay 'cd /opt/dingplay-chat/relay && npm ci --omit=dev && systemctl restart dingplay-relay'
+ssh relay 'journalctl -u dingplay-relay -f'          # logs
+curl http://199.247.12.221:8000/health               # {"ok":true,...,"voiceTranscode":true}
+```
+
+Rotating `RELAY_SECRET` invalidates every console session (they just sign in again).
+`ffmpeg` is installed, so phone voice notes are transcoded for the console.
+
 ## API (what the console calls)
 
 All responses are JSON unless noted. Authenticated calls send
