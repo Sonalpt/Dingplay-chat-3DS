@@ -44,12 +44,42 @@ back to the other size, then to the system font.
 
 ## On the console
 
-- `sdmc:/3ds/dingplay-chat/config.ini` — `relay=http://host:port` (defaults to
-  `http://192.168.1.10:8080`), sync interval, language, toggles. Editable in-app: the boot
+- `sdmc:/3ds/dingplay-chat/config.ini` — `relay=http://host:port` (defaults to the public
+  relay, `RELAY_DEFAULT` in app.h), sync interval, language, toggles. Editable in-app: the boot
   screen offers "Set relay address" when the relay can't be reached; Settings → SELECT.
 - `sdmc:/3ds/dspfirm.cdc` — DSP firmware dump, needed for **voice playback** (recording and
   sending work without it). Dump it once with DSP1 or any homebrew that offers the dump.
 - Wi-Fi must be connected for Online mode. Local Wireless works with no account and no Wi-Fi.
+
+## CIA (installable title) and Universal-Updater
+
+`make cia` → `dingplay-chat.cia` (~4 MB; install with FBI, or from the Universal-Updater
+store once listed). It needs two host tools that devkitPro does not ship, dropped in
+`client/tools/bin/` (git-ignored) or on PATH:
+
+- **makerom** — [3DSGuy/Project_CTR releases](https://github.com/3DSGuy/Project_CTR/releases),
+  `makerom-vX-macos_x86_64.zip` / `-macos_arm64` / `-win_x86_64` / `-ubuntu`.
+- **bannertool** — the original repo is gone; build
+  [carstene1ns/3ds-bannertool](https://github.com/carstene1ns/3ds-bannertool) (Linux/Windows
+  binaries on its releases page; on macOS `clang++ -std=c++17 -O2 -DVERSION='"1.2.3"'
+  -Isource -Isource/pc -o bannertool source/*.cpp source/pc/*.cpp source/3ds/*.cpp` after
+  changing the VLA in `source/3ds/lz11.cpp` to a `std::vector`).
+
+Inputs: `banner.png` (256×128 HOME-menu banner), `banner.wav` (short mono 16-bit clip played
+on the HOME menu), `icon.png` (48×48), `tools/app.rsf` (title metadata, unique ID `0xD1A6`
+= 53670, service access). The 3dsx and the CIA share `sdmc:/3ds/dingplay-chat/`.
+
+**Publishing on Universal-Updater** (its store is [Universal-Team/db](https://github.com/Universal-Team/db)):
+
+1. The repo must be **public** — the store reads GitHub releases through the API.
+2. Publish a GitHub release (tag `v0.1.0`, …) with `dingplay-chat.cia` and `dingplay-chat.3dsx`
+   attached. The generator turns a `.cia` asset into an "install" entry and a `.3dsx` into
+   a copy-to-`/3ds/` entry automatically; the `unique_ids` let it show the installed version.
+3. Fork Universal-Team/db, add `source/apps/dingplay-chat.json` — the ready-made file is
+   [`meta/universal-db.json`](../meta/universal-db.json) (it points at `meta/icon.png` and
+   `meta/banner.png` in this repo) — and open a pull request. Optional: a `screenshots`
+   array of image URLs, `long_description` (Markdown). Once merged the app appears in
+   Universal-Updater within ~6 hours; later releases are picked up automatically.
 
 ## Controls (as in the mockups)
 

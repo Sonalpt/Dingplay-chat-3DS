@@ -20,7 +20,6 @@ AccessControlInfo:
   ReleaseKernelMajor            : "02"
   ReleaseKernelMinor            : "33"
   UseExtSaveData                : false
-  UseExtendedSaveDataAccess     : false
   UseOtherVariationSaveData     : false
   MaxCpu                        : 0x9E
   SystemMode                    : 64MB
@@ -194,3 +193,7 @@ SystemControlInfo:
     socket: 0x0004013000002e02
     spi: 0x0004013000002302
     ssl: 0x0004013000002f02
+
+RomFs:
+  # Passed by the Makefile as -DAPP_ROMFS=romfs
+  RootPath                : $(APP_ROMFS)

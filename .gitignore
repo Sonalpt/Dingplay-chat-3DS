@@ -10,3 +10,4 @@ client/*.elf
 client/*.cia
 client/romfs/*.bcfnt
 client/romfs/gfx/
+client/tools/bin/

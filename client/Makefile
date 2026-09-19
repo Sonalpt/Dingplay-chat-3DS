@@ -171,7 +171,10 @@ $(GFXBUILD)/%.t3x $(BUILD)/%.h : %.t3s
 	@tex3ds -i $< -H $(BUILD)/$*.h -d $(DEPSDIR)/$*.d -o $(GFXBUILD)/$*.t3x
 
 #---------------------------------------------------------------------------------
-# CIA build (installable via FBI). Needs `bannertool` and `makerom` on PATH.
+# CIA build (installable via FBI). Needs `bannertool` and `makerom`: either on PATH or
+# dropped in tools/bin/ (git-ignored; see README "CIA" for where to get them).
+# banner.png is 256×128, banner.wav a short mono 16-bit clip (both in this dir).
+cia: export PATH := $(CURDIR)/tools/bin:$(PATH)
 cia: all
 	@bannertool makebanner -i banner.png -a banner.wav -o banner.bnr
 	@bannertool makesmdh -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o icon.icn
