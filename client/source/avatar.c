@@ -9,11 +9,10 @@
 
 // ---- Texture upload ---------------------------------------------------------------------
 // The PICA200 wants 8×8 tiles in row-major tile order, texels Morton-ordered inside
-// each tile (x bits on even positions, y bits on odd), v running bottom-up. tex3ds
-// flips the image before tiling, so the top row of the picture is the last row in
-// memory and citro2d samples from top = 1 down. Done on the CPU here so it does not
-// depend on how the display-transfer engine's FLIP_VERT flag behaves (the emulator
-// and hardware differ); a 64×64 avatar is 4K texels, nothing to the ARM11.
+// each tile (x bits on even positions, y bits on odd). Memory row 0 is what citro2d
+// samples at v = 1 (the top of a tex3ds subtexture), so the picture goes in top-down
+// with no flip. Done on the CPU so it does not depend on the display-transfer
+// engine; a 64×64 avatar is 4K texels, nothing to the ARM11.
 
 static inline u32 morton8(int px, int py) {
     return (u32)((px & 1) | ((py & 1) << 1) | ((px & 2) << 1) | ((py & 2) << 2) | ((px & 4) << 2) | ((py & 4) << 3));
@@ -26,12 +25,11 @@ void tex_upload_rgba(C3D_Tex *tex, const u8 *rgba, int w, int h, int stride) {
     const int tiles_x = tw / 8;
     for (int y = 0; y < h && y < th; y++) {
         const u8 *row = rgba + (size_t)y * stride * 4;
-        const int ty = th - 1 - y;  // picture row 0 → last texture row (v = 1)
-        u32 *tile_row = dst + (size_t)(ty >> 3) * tiles_x * 64;
+        u32 *tile_row = dst + (size_t)(y >> 3) * tiles_x * 64;
         for (int x = 0; x < w && x < tw; x++) {
             // GPU_RGBA8 texels are stored as A,B,G,R bytes: u32 = R<<24 | G<<16 | B<<8 | A.
             u32 px = ((u32)row[x * 4] << 24) | ((u32)row[x * 4 + 1] << 16) | ((u32)row[x * 4 + 2] << 8) | row[x * 4 + 3];
-            tile_row[(size_t)(x >> 3) * 64 + morton8(x & 7, ty & 7)] = px;
+            tile_row[(size_t)(x >> 3) * 64 + morton8(x & 7, y & 7)] = px;
         }
     }
     GSPGPU_FlushDataCache(dst, (size_t)tw * th * 4);
@@ -166,7 +164,7 @@ void avatar_put(const char *uid, const u8 *rgba, int size) {
         C3D_TexSetFilter(&s->tex[v], GPU_LINEAR, GPU_LINEAR);
     }
     free(tmp);
-    // Image row 0 sits at the top of v-space: sample from top = 1 down.
+    // Memory row 0 (picture top) is v = 1: sample from top = 1 down to 1 - h/th.
     s->sub.width = size;
     s->sub.height = size;
     s->sub.left = 0.0f;
