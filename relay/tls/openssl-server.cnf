@@ -1,0 +1,11 @@
+[req]
+distinguished_name = dn
+prompt = no
+[dn]
+CN = Dingplay Chat relay
+O = Dingplay
+[v3_server]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = IP:199.247.12.221, IP:192.168.144.18, DNS:relay.dingplay.net

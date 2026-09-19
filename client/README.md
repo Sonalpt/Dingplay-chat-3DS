@@ -49,6 +49,10 @@ back to the other size, then to the system font.
   screen offers "Set relay address" when the relay can't be reached; Settings → SELECT.
 - `sdmc:/3ds/dspfirm.cdc` — DSP firmware dump, needed for **voice playback** (recording and
   sending work without it). Dump it once with DSP1 or any homebrew that offers the dump.
+- The relay is reached over **HTTPS with a pinned CA** (`data/ca.bin`, the DER of
+  `relay/tls/ca.crt`): only a server holding a certificate signed by that CA is accepted,
+  so passwords and session tokens cannot be sniffed or spoofed on shared Wi-Fi. An
+  `http://` relay URL (LAN testing) skips TLS entirely.
 - Wi-Fi must be connected for Online mode. Local Wireless works with no account and no Wi-Fi.
 
 ## CIA (installable title) and Universal-Updater

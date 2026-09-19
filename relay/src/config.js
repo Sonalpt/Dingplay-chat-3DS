@@ -29,6 +29,10 @@ const config = {
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'dingplay-e3401.firebasestorage.app',
   relaySecret: process.env.RELAY_SECRET || '',
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
+  // TLS: set both to serve HTTPS (the console pins the CA that signed TLS_CERT).
+  // Leave unset for plain HTTP — LAN testing only, never for a public relay.
+  tlsCert: process.env.TLS_CERT || '',
+  tlsKey: process.env.TLS_KEY || '',
   cacheDir: path.resolve(process.env.CACHE_DIR || path.join(__dirname, '..', 'cache')),
   // A session token lives this long before the console has to log in again.
   sessionDays: 30,

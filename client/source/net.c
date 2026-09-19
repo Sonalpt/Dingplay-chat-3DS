@@ -1,5 +1,6 @@
 #include "net.h"
 #include "dbg.h"
+#include "ca_bin.h"  // data/ca.bin: DER of the Dingplay Chat CA that signs the relay's certificate
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +37,15 @@ static void perform(NetJob *j) {
         j->status = -1;
         return;
     }
-    httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify);
+    if (strncmp(j->url, "https://", 8) == 0) {
+        // Pin the relay: only certificates signed by our own CA are accepted, so an
+        // attacker on the same Wi-Fi can neither read nor spoof the conversation. The
+        // console's built-in root store is not consulted (it predates today's public CAs).
+        httpcAddTrustedRootCA(&ctx, ca_bin, ca_bin_size);
+    } else {
+        // Plain HTTP: LAN testing against a relay run without TLS_CERT. Nothing to verify.
+        httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify);
+    }
     httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED);
     httpcAddRequestHeaderField(&ctx, "User-Agent", "DingplayChat3DS/" APP_VERSION);
     httpcAddRequestHeaderField(&ctx, "Accept", "application/json, application/octet-stream");

@@ -40,7 +40,7 @@ CFLAGS  := -g -Wall -Wno-unused-function -Wno-stringop-truncation -O2 -mword-rel
            -ffunction-sections -fdata-sections \
            $(ARCH)
 
-CFLAGS  += $(INCLUDE) -D__3DS__ -DAPP_VERSION=\"0.1.0\" -DAPP_UNIQUE_ID=$(APP_UNIQUE_ID)
+CFLAGS  += $(INCLUDE) -D__3DS__ -DAPP_VERSION=\"0.1.1\" -DAPP_UNIQUE_ID=$(APP_UNIQUE_ID)
 # cJSON is vendored; keep its own warnings quiet.
 CFLAGS  += -DCJSON_HIDE_SYMBOLS=0
 

@@ -2,3 +2,7 @@ node_modules/
 .env
 serviceAccount.json
 cache/
+# TLS: private keys stay out of git; the public CA cert is committed (the console pins it).
+tls/*.key
+tls/*.csr
+tls/*.srl

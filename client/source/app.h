@@ -7,7 +7,7 @@
 #include "i18n.h"
 
 // Public relay (Vultr box shared with the 3LWO relay); config.ini `relay=` overrides it.
-#define RELAY_DEFAULT "http://199.247.12.221:8000"
+#define RELAY_DEFAULT "https://199.247.12.221:8000"
 
 // ---- Data model ----------------------------------------------------------------
 // Small structs sized for what local wireless frames and a polled relay can carry,

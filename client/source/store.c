@@ -51,7 +51,8 @@ void store_load_settings(Settings *s) {
         while (n && (val[n - 1] == '\n' || val[n - 1] == '\r' || val[n - 1] == ' ')) val[--n] = 0;
         if (strcmp(key, "relay") == 0) {
             // consoles set up during LAN testing pointed at the dev Mac: move them to the public relay
-            if (strcmp(val, "http://192.168.144.18:8080") != 0) strncpy(s->relay, val, sizeof(s->relay) - 1);
+            if (strcmp(val, "http://192.168.144.18:8080") != 0 && strcmp(val, "http://199.247.12.221:8000") != 0)
+                strncpy(s->relay, val, sizeof(s->relay) - 1);
         }
         else if (strcmp(key, "stay_signed_in") == 0) s->stay_signed_in = atoi(val) != 0;
         else if (strcmp(key, "notif_sound") == 0) s->notif_sound = atoi(val) != 0;

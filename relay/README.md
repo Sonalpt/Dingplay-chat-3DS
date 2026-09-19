@@ -66,6 +66,27 @@ curl http://199.247.12.221:8000/health               # {"ok":true,...,"voiceTran
 Rotating `RELAY_SECRET` invalidates every console session (they just sign in again).
 `ffmpeg` is installed, so phone voice notes are transcoded for the console.
 
+### TLS
+
+The public relay is **HTTPS only**. The console cannot use public CAs (its root store is
+years old), so the app pins our own CA instead:
+
+| File | What |
+|---|---|
+| `relay/tls/ca.crt` / `ca.der` | Dingplay Chat CA, 10 years, public — `ca.der` is compiled into the app (`client/data/ca.bin`) |
+| `relay/tls/ca.key` | CA private key — **git-ignored, keep a copy somewhere safe**; also root-only on the box |
+| `relay/tls/server-chain.crt` + `server.key` | server certificate (5 years, SANs: 199.247.12.221, 192.168.144.18, relay.dingplay.net) signed by the CA |
+
+`TLS_CERT` / `TLS_KEY` in `.env` turn HTTPS on; unset them for a plain-HTTP LAN relay
+(the app accepts `http://` URLs without any verification). Renewing the server cert:
+regenerate `server.csr`/`server.crt` with the CA (`relay/tls/openssl-server.cnf`), scp to
+`/etc/dingplay-relay/tls/`, restart — no app update needed. Changing the CA *does*
+need an app update (new `ca.bin`).
+
+Cipher suites include RSA-key-exchange CBC ones (`AES128-SHA` …) at OpenSSL
+`SECLEVEL=0` because that is what the 3DS SSL module offers; the pinned CA is what
+makes this safe in practice.
+
 ## API (what the console calls)
 
 All responses are JSON unless noted. Authenticated calls send
