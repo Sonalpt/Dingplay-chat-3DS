@@ -24,8 +24,8 @@ AccessControlInfo:
   MaxCpu                        : 0x9E
   SystemMode                    : 64MB
   SystemModeExt                 : 124MB
-  CpuSpeed                      : 804MHz
-  EnableL2Cache                 : true
+  CpuSpeed                      : 268MHz
+  EnableL2Cache                 : false
   IdealProcessor                : 0
   AffinityMask                  : 1
   Priority                      : 16
@@ -157,6 +157,14 @@ AccessControlInfo:
     - Shell
     - CategoryHomeMenu
   IoAccessControl:
+
+  # Virtual address mappings. Without the DSP range ndspInit() data-aborts on its first
+  # write to DSP shared memory (0x1FF5xxxx) — under the Homebrew Launcher the host
+  # title's mapping hides that, as a CIA it is an instant crash.
+  IORegisterMapping:
+   - 1ff00000-1ff7ffff   # DSP memory
+  MemoryMapping:
+   - 1f000000-1f5fffff:r # VRAM
 
 SystemControlInfo:
   SaveDataSize: 0KB
