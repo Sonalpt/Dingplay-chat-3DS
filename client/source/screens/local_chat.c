@@ -193,7 +193,7 @@ static void draw_top(void) {
     ui_text_v(TOP_W - 9, 0, 24, 9, C_WHITE, ALIGN_RIGHT, FONT_HEAD, here);
     int sig = local_signal();
     if (sig < 2) ui_circle(TOP_W - 9 - hw - 6 - (shown ? 15 + (shown - 1) * 10 : 0) - 6, 12, 3, sig == 1 ? C_ORANGE : C_RED);
-    chatlog_draw(&g_local_chat, 10, 24 + 8, TOP_W - 20, TOP_H - 24 - 16, LOG_CREAM, s_voice_sel);
+    chatlog_draw(&g_local_chat, 10, 24 + 8, TOP_W - 20, TOP_H - 24 - 16, LOG_CREAM, s_voice_sel, 0.0f, NULL);
 }
 
 // ---- Bottom ---------------------------------------------------------------------------------------

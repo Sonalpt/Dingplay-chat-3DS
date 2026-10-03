@@ -135,34 +135,41 @@ int chatlog_step_voice(const MessageList *l, int current, int dir) {
     }
 }
 
-int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogStyle style, int selected) {
+int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogStyle style, int selected, float scroll, float *content_h) {
     const float gap = 6;
     const float avatar = style == LOG_NAVY ? 20 : 18;
     const float pad_x = style == LOG_NAVY ? 10 : 9;
     const float pad_y = style == LOG_NAVY ? 7 : 6;
 
+    if (content_h) *content_h = 0;
     if (l->count == 0) {
         ui_text_v(x + w / 2, y, h, 11, style == LOG_NAVY ? C_NAVY_NAME : C_MUTED2, ALIGN_CENTER, FONT_BODY, tr(S_NO_MESSAGES));
         return 0;
     }
-    // Bottom-up: collect the messages that fit.
+    // Measure everything so we know the full height, then draw bottom-up from an
+    // anchor shifted down by `scroll` (0 = newest pinned to the bottom; scrolling up
+    // reveals older messages). Messages outside [y, y+h] are skipped.
     Metrics mt[MSG_HISTORY];
-    int first = l->count;
-    float used = 0;
-    for (int i = l->count - 1; i >= 0; i--) {
+    float total = 0;
+    for (int i = 0; i < l->count; i++) {
         measure(&l->items[i], style, &mt[i]);
-        float need = mt[i].h + (used > 0 ? gap : 0);
-        if (used + need > h) break;
-        used += need;
-        first = i;
+        total += mt[i].h + (i > 0 ? gap : 0);
     }
-    if (first == l->count) first = l->count - 1;  // always show the newest, clipped
-    float cy = y + h;
-    for (int i = l->count - 1; i >= first; i--) {
+    if (content_h) *content_h = total;
+    float max_scroll = total > h ? total - h : 0;
+    if (scroll < 0) scroll = 0;
+    if (scroll > max_scroll) scroll = max_scroll;
+
+    float cy = y + h + scroll;
+    int drawn = 0;
+    for (int i = l->count - 1; i >= 0; i--) {
         const Message *m = &l->items[i];
         Metrics *k = &mt[i];
         if (i != l->count - 1) cy -= gap;
         cy -= k->h;
+        if (cy > y + h) continue;      // below the viewport (scrolled off the bottom): keep walking up
+        if (cy + k->h < y) break;      // above the viewport: nothing older can show
+        drawn++;
         float top = cy;
         bool mine = m->mine;
         float bx, by = top;
@@ -241,7 +248,7 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             ui_circle(bx + bwid - 4, by - 2, 3, C_ORANGE);
         }
     }
-    return l->count - first;
+    return drawn;
 }
 
 // ---- Status cluster / bars ------------------------------------------------------------------------

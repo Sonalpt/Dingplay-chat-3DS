@@ -9,7 +9,9 @@ bool kbd_prompt(KbdKind kind, const char *hint, char *buf, size_t n, int max_cha
     swkbdInit(&kb, type, 2, max_chars);
     swkbdSetInitialText(&kb, buf);
     if (hint) swkbdSetHintText(&kb, hint);
-    swkbdSetFeatures(&kb, SWKBD_PREDICTIVE_INPUT);
+    // Predictive input / autocorrect silently rewrites usernames (kevin -> Kevin) and
+    // would corrupt passwords; only enable it for free text (messages, relay URL).
+    if (kind != KBD_USERNAME && kind != KBD_PASSWORD) swkbdSetFeatures(&kb, SWKBD_PREDICTIVE_INPUT);
     swkbdSetValidation(&kb, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
     if (kind == KBD_PASSWORD) swkbdSetPasswordMode(&kb, SWKBD_PASSWORD_HIDE_DELAY);
     if (kind == KBD_NUMPAD) swkbdSetNumpadKeys(&kb, 0, 0);

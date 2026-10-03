@@ -18,7 +18,7 @@ typedef enum { LOG_NAVY = 0, LOG_CREAM = 1 } LogStyle;
 // Draws messages bottom-aligned inside (x, y, w, h). `selected` is the index of
 // the message the D-pad cursor is on (-1 = none). Returns the number of messages
 // that fit, so callers can size the cursor.
-int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogStyle style, int selected);
+int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogStyle style, int selected, float scroll, float *content_h);
 // Index of the newest voice message, or -1.
 int chatlog_last_voice(const MessageList *l);
 // Move a voice-message cursor: dir -1 (older) / +1 (newer). Returns new index or -1.

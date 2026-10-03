@@ -75,9 +75,27 @@ async function revokeToken(token) {
 
 async function resolveEmail(login) {
   if (login.includes('@')) return login;
-  const snap = await db.collection('users').where('username', '==', login).limit(1).get();
+  // Resolve a username to the account's email. Two subtleties the first release got wrong:
+  //  - The users doc has no `email` field (the sign-up cloud function never writes one), so
+  //    the email must come from Firebase Auth by uid — not from Firestore.
+  //  - The 3DS keyboard capitalises / auto-corrects and users forget their exact casing, so
+  //    match case-insensitively on `usernameLower` (backfilled + written on sign-up), falling
+  //    back to an exact `username` match and self-healing the lowercase field.
+  const lower = login.toLowerCase();
+  let snap = await db.collection('users').where('usernameLower', '==', lower).limit(1).get();
+  if (snap.empty) snap = await db.collection('users').where('username', '==', login).limit(1).get();
   if (snap.empty) return null;
-  return snap.docs[0].get('email') || null;
+  const doc = snap.docs[0];
+  if (!doc.get('usernameLower') && doc.get('username')) {
+    doc.ref.set({ usernameLower: String(doc.get('username')).toLowerCase() }, { merge: true }).catch(() => {});
+  }
+  const uid = doc.get('uid') || doc.id;
+  try {
+    const rec = await admin.auth().getUser(uid);
+    return rec.email || null;
+  } catch {
+    return doc.get('email') || null;  // last resort if the Auth record is gone
+  }
 }
 
 async function loginWithPassword(login, password) {

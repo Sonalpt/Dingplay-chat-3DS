@@ -22,6 +22,8 @@ static float s_caret;
 static int s_last_count;
 static bool s_first_poll;
 static float s_close_arm;   // > 0: "Close room" was tapped once, waiting for the confirming tap
+static float s_scroll;      // pixels scrolled up from the bottom of the log (0 = newest pinned)
+static float s_content_h, s_prev_content_h;  // log content height, for anchoring while scrolled
 
 static const char *EMOTICONS[8] = {":)", ":D", ";)", ":(", "<3", "^^", "xD", "!!"};
 
@@ -123,6 +125,8 @@ static void enter(void *arg) {
     s_voice_mode = false;
     s_emoji_open = false;
     s_first_poll = true;
+    s_scroll = 0;
+    s_prev_content_h = 0;
     s_close_arm = 0;
     s_last_count = g_chat.count;
     voice_panel_reset();
@@ -135,6 +139,7 @@ static void send_text(void) {
     if (!s_compose[0]) return;
     api_chat_send_text(s_compose, send_done, NULL);
     s_compose[0] = 0;
+    s_scroll = 0;  // jump back to the newest so the sender sees their message
 }
 
 static void close_done(int status, cJSON *json, void *user) {
@@ -163,6 +168,16 @@ static bool show_close(void) { return s_arg.kind == 2 && s_arg.is_host && strncm
 
 static void update(const Input *in) {
     s_caret += in->dt;
+
+    // Circle Pad scrolls the chat log like a scroll wheel (push up = into history).
+    const float VP_H = TOP_H - 24 - 18;  // must match the chatlog_draw height below
+    if (in->circle.dy > 18 || in->circle.dy < -18) s_scroll += in->circle.dy * 1.6f * in->dt;
+    // Stay anchored on the same messages when new ones arrive while scrolled up.
+    if (s_scroll > 1.0f && s_content_h > s_prev_content_h) s_scroll += s_content_h - s_prev_content_h;
+    s_prev_content_h = s_content_h;
+    float max_scroll = s_content_h > VP_H ? s_content_h - VP_H : 0;
+    if (s_scroll < 0) s_scroll = 0;
+    if (s_scroll > max_scroll) s_scroll = max_scroll;
     if (in->down & KEY_B) {
         if (s_voice_mode) {
             voice_panel_reset();
@@ -307,6 +322,8 @@ static void draw_top(void) {
     if (s_arg.kind == 0 && s_bg_sheet) C2D_DrawImageAt(s_bg, 0, 0, 0.5f, NULL, 1.0f, 1.0f);
     // a little depth: darker band at the bottom like the photo gradient
     ui_rect(0, TOP_H - 60, TOP_W, 60, RGBA(0x05101F, 90));
+    // log (drawn before the header so messages scrolled up are clipped behind it)
+    chatlog_draw(&g_chat, 10, 24 + 9, TOP_W - 20, TOP_H - 24 - 18, LOG_NAVY, s_voice_sel, s_scroll, &s_content_h);
     // header
     ui_rect(0, 0, TOP_W, 24, C_INK);
     float x = 9;
@@ -336,8 +353,6 @@ static void draw_top(void) {
     ui_rrect(sx, 4, sw, 16, 6, RGBA(0xFFFFFF, 31));
     ui_circle(sx + 10, 12, 3, s_polling ? C_GREEN : C_ORANGE);
     ui_text_v(sx + 18, 4, 16, 9, C_GOLD, ALIGN_LEFT, FONT_HEAD, sync);
-    // log
-    chatlog_draw(&g_chat, 10, 24 + 9, TOP_W - 20, TOP_H - 24 - 18, LOG_NAVY, s_voice_sel);
 }
 
 // ---- Bottom ------------------------------------------------------------------------------------

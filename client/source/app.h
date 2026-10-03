@@ -142,6 +142,7 @@ typedef struct {
     bool touching, touch_down, touch_up;
     touchPosition touch;         // current (or last) stylus position
     touchPosition touch_start;
+    circlePosition circle;       // Circle Pad (dx/dy, ~ -156..156); used to scroll the chat log
     float dt;                    // seconds since last frame
 } Input;
 

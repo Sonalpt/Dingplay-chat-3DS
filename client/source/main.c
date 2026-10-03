@@ -202,6 +202,7 @@ int main(int argc, char **argv) {
         in.touch_down = (in.down & KEY_TOUCH) != 0;
         in.touch_up = (in.up & KEY_TOUCH) != 0;
         in.touching = (in.held & KEY_TOUCH) != 0;
+        hidCircleRead(&in.circle);
         if (in.touching) {
             hidTouchRead(&in.touch);  // keep the last position on release
             if (in.touch_down) in.touch_start = in.touch;
