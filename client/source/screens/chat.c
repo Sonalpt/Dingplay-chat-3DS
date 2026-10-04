@@ -8,6 +8,7 @@
 #include "../store.h"
 #include "../dbg.h"
 #include "../voice.h"
+#include "../chatimg.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -91,6 +92,10 @@ static void play_selected(void) {
     if (s_voice_sel < 0 || s_voice_sel >= g_chat.count) return;
     Message *m = &g_chat.items[s_voice_sel];
     if (m->type != MSG_VOICE) return;
+    if (!voice_can_play()) {  // no sdmc:/3ds/dspfirm.cdc -> ndsp never came up
+        app_toast(tr(S_VOICE_NO_DSP), C_MUTED);
+        return;
+    }
     if (voice_is_playing(m->id)) {
         voice_stop();
         return;
@@ -438,6 +443,7 @@ static void leave(void) {
         C2D_SpriteSheetFree(s_bg_sheet);
         s_bg_sheet = NULL;
     }
+    chatimg_clear();
     net_cancel_tag(TAG_CHAT_POLL);
     net_cancel_tag(TAG_MEDIA);
     voice_panel_reset();

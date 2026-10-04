@@ -1,6 +1,7 @@
 #include "api.h"
 #include "adpcm.h"
 #include "avatar.h"
+#include "chatimg.h"
 #include "mii.h"
 #include "net.h"
 #include "store.h"
@@ -86,6 +87,24 @@ static void avatar_done(NetJob *job) {
     else avatar_mark_failed(job->key);
 }
 
+static void image_done(NetJob *job) {
+    if (job->status == 200 && job->resp_len == (size_t)(CHATIMG_W * CHATIMG_H * 4))
+        chatimg_put(job->key, job->resp, CHATIMG_W, CHATIMG_H);
+    else chatimg_mark_failed(job->key);
+}
+
+// Phone-sent chat images: the relay decodes + letterboxes them to raw RGBA. Scoped to
+// the open chat (TAG_MEDIA, cancelled on leave). Needs a session, so Wi-Fi + token.
+static void image_fetch(const char *id) {
+    if (!g_wifi || !g_chat.room[0]) {
+        chatimg_mark_failed(id);
+        return;
+    }
+    char path[96];
+    snprintf(path, sizeof(path), "/image/%s/%s", g_chat.room, id);
+    net_request("GET", path, NULL, 0, NULL, image_done, NULL, TAG_MEDIA, id);
+}
+
 // Keys are a Dingplay uid (profile picture) or "mii:<hash>" (a Mii registered in
 // mii.c, rendered by the relay). Neither needs a session, only Wi-Fi.
 static void avatar_fetch(const char *key) {
@@ -106,6 +125,7 @@ static void avatar_fetch(const char *key) {
 void api_init(void) {
     memset(&g_chat, 0, sizeof(g_chat));
     avatar_set_fetcher(avatar_fetch);
+    chatimg_set_fetcher(image_fetch);
     api_apply_settings();
 }
 

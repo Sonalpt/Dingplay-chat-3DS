@@ -327,4 +327,49 @@ module.exports = async function chatRoutes(app) {
     reply.header('cache-control', 'private, max-age=3600');
     return reply.send(dpv);
   });
+
+  // Image display: GET /image/:room/:id -> raw RGBA, letterboxed onto a fixed IMG_W x IMG_H
+  // transparent canvas (the console has no image decoder). Phone-sent images only; they
+  // expire after 1 h like voice. Response is exactly IMG_W*IMG_H*4 bytes.
+  const IMG_W = 140, IMG_H = 105;
+  app.get('/image/:room/:id', { preHandler: auth.requireAuth }, async (req, reply) => {
+    const room = parseRoomId(req.params.room, pickLang(req.query));
+    if (!room) return reply.code(400).send({ error: 'bad_room' });
+    const id = String(req.params.id);
+    if (!/^[\w-]{1,64}$/.test(id)) return reply.code(400).send({ error: 'bad_id' });
+
+    let ref;
+    if (room.kind === 'global') ref = db.collection('worldChat').doc(id);
+    else if (room.kind === 'dm') ref = db.collection('privateChat').doc(req.uid).collection(room.peer).doc(id);
+    else ref = roomMessages(room.roomId).doc(id);
+    const doc = await ref.get();
+    if (!doc.exists) return reply.code(404).send({ error: 'not_found' });
+    const d = doc.data();
+    if (d.type !== 'image') return reply.code(400).send({ error: 'not_image' });
+    const exp = tsToMs(d.expiresAt);
+    if (exp && exp < Date.now()) return reply.code(410).send({ error: 'expired' });
+
+    // Prefer the full image, not the 3DS drawing PNG; both live under mediaUrl.
+    const srcUrl = d.mediaUrl || d.mediaUrl3ds;
+    if (!srcUrl) return reply.code(404).send({ error: 'no_media' });
+    let rgba = media.cacheGet('image', srcUrl, 'rgba');
+    if (!rgba) {
+      try {
+        const { Jimp } = require('jimp');
+        const bytes = await storage.download(srcUrl);
+        const img = await Jimp.read(bytes);
+        img.contain({ w: IMG_W, h: IMG_H }); // keep aspect, pad with transparent
+        rgba = Buffer.from(img.bitmap.data);  // RGBA, top-left origin, IMG_W*IMG_H*4
+        media.cachePut('image', srcUrl, 'rgba', rgba);
+      } catch (err) {
+        req.log.warn({ err: err.message }, 'image decode failed');
+        return reply.code(502).send({ error: 'image_failed' });
+      }
+    }
+    reply.header('content-type', 'application/octet-stream');
+    reply.header('x-width', String(IMG_W));
+    reply.header('x-height', String(IMG_H));
+    reply.header('cache-control', 'private, max-age=3600');
+    return reply.send(rgba);
+  });
 };

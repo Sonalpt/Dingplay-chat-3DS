@@ -1,6 +1,7 @@
 #include "common.h"
 #include "../draw.h"
 #include "../voice.h"
+#include "../chatimg.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -91,6 +92,8 @@ typedef struct {
 #define MAX_BUBBLE_W 250.0f
 #define DRAW_W 120.0f
 #define DRAW_H 52.0f
+#define IMG_DW 124.0f  // phone image display box (relay canvas is CHATIMG_W x CHATIMG_H)
+#define IMG_DH 93.0f
 #define TEXT_PX 12.0f
 
 static void measure(const Message *m, LogStyle style, Metrics *out) {
@@ -99,9 +102,12 @@ static void measure(const Message *m, LogStyle style, Metrics *out) {
     float meta_h = (style == LOG_NAVY && m->mine) ? ui_line_height(8) + 2 : 0;
     float pad_x = style == LOG_NAVY ? 10 : 9;
     float pad_y = style == LOG_NAVY ? 7 : 6;
-    if (m->type == MSG_TEXT || m->type == MSG_IMAGE) {
+    if (m->type == MSG_IMAGE && !m->expired) {
+        out->bubble_w = IMG_DW + 2 * 4 + 4;
+        out->h = name_h + meta_h + IMG_DH + 2 * 4 + 4;
+    } else if (m->type == MSG_TEXT || m->type == MSG_IMAGE) {
         char text[MSG_TEXT_LEN + NAME_LEN + 4];
-        const char *body = m->type == MSG_IMAGE ? tr(S_IMAGE_PLACEHOLDER) : m->text;
+        const char *body = m->type == MSG_IMAGE ? tr(S_IMAGE_EXPIRED) : m->text;
         if (style == LOG_CREAM && !m->mine) snprintf(text, sizeof(text), "%s : %s", m->name, body);
         else snprintf(text, sizeof(text), "%s", body);
         float inner_w = MAX_BUBBLE_W - 2 * pad_x;
@@ -232,9 +238,15 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             float dx = bx + 4 + (mine ? 0 : 0), dy = by + 4;
             ui_rect(dx, dy, DRAW_W + 4, DRAW_H + 4, C_WHITE);
             drawing_render(m->draw, dx + 2, dy + 2, DRAW_W, DRAW_H);
+        } else if (m->type == MSG_IMAGE && !m->expired) {
+            float dx = bx + 4, dy = by + 4;
+            ui_rect(dx, dy, IMG_DW + 4, IMG_DH + 4, C_WHITE);
+            C2D_Image *im = chatimg_get(m->id);
+            if (im) C2D_DrawImageAt(*im, dx + 2, dy + 2, 0.5f, NULL, IMG_DW / im->subtex->width, IMG_DH / im->subtex->height);
+            else ui_text_v(dx + 2 + IMG_DW / 2, dy + 2, IMG_DH, 10, C_MUTED, ALIGN_CENTER, FONT_BODY, chatimg_failed(m->id) ? tr(S_IMAGE_UNAVAIL) : "...");
         } else {
             char text[MSG_TEXT_LEN + NAME_LEN + 4];
-            const char *body = m->type == MSG_IMAGE ? tr(S_IMAGE_PLACEHOLDER) : m->text;
+            const char *body = m->type == MSG_IMAGE ? tr(S_IMAGE_EXPIRED) : m->text;
             if (style == LOG_CREAM && !mine) snprintf(text, sizeof(text), "%s : %s", m->name, body);
             else snprintf(text, sizeof(text), "%s", body);
             ui_text_wrap(bx + pad_x, by + pad_y, bwid - 2 * pad_x, TEXT_PX, text_col, ALIGN_LEFT, FONT_BODY, text, 6, 0);

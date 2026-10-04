@@ -3,6 +3,7 @@
 #include "app.h"
 #include "api.h"
 #include "avatar.h"
+#include "chatimg.h"
 #include "dbg.h"
 #include "local/udsnet.h"
 #include "net.h"
@@ -151,6 +152,7 @@ static void services_init(void) {
     g_new3ds = n3ds;
     if (g_new3ds) osSetSpeedupEnable(true);
     avatar_init();
+    chatimg_init();
     net_init();
     api_init();
     voice_init();
@@ -163,6 +165,7 @@ static void services_exit(void) {
     voice_exit();
     net_exit();
     avatar_exit();
+    chatimg_exit();
     if (s_ptmu_ok) ptmuExit();
     if (s_ac_ok) acExit();
     romfsExit();
