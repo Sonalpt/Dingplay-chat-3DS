@@ -88,6 +88,7 @@ static void avatar_done(NetJob *job) {
 }
 
 static void image_done(NetJob *job) {
+    dbg_log("image_done %s -> %d (%u bytes, want %d)", job->key, job->status, (unsigned)job->resp_len, CHATIMG_W * CHATIMG_H * 4);
     if (job->status == 200 && job->resp_len == (size_t)(CHATIMG_W * CHATIMG_H * 4))
         chatimg_put(job->key, job->resp, CHATIMG_W, CHATIMG_H);
     else chatimg_mark_failed(job->key);
@@ -103,6 +104,20 @@ static void image_fetch(const char *id) {
     char path[96];
     snprintf(path, sizeof(path), "/image/%s/%s", g_chat.room, id);
     net_request("GET", path, NULL, 0, NULL, image_done, NULL, TAG_MEDIA, id);
+}
+
+static void image_big_done(NetJob *job) {
+    dbg_log("image_big_done %s -> %d (%u bytes, want %d)", job->key, job->status, (unsigned)job->resp_len, CHATIMG_BIG_W * CHATIMG_BIG_H * 4);
+    if (job->status == 200 && job->resp_len == (size_t)(CHATIMG_BIG_W * CHATIMG_BIG_H * 4))
+        chatimg_big_put(job->key, job->resp, CHATIMG_BIG_W, CHATIMG_BIG_H);
+    else chatimg_big_mark_failed(job->key);
+}
+
+static void image_big_fetch(const char *id) {
+    if (!g_wifi || !g_chat.room[0]) return;
+    char path[96];
+    snprintf(path, sizeof(path), "/image/%s/%s?big=1", g_chat.room, id);
+    net_request("GET", path, NULL, 0, NULL, image_big_done, NULL, TAG_MEDIA, id);
 }
 
 // Keys are a Dingplay uid (profile picture) or "mii:<hash>" (a Mii registered in
@@ -126,6 +141,7 @@ void api_init(void) {
     memset(&g_chat, 0, sizeof(g_chat));
     avatar_set_fetcher(avatar_fetch);
     chatimg_set_fetcher(image_fetch);
+    chatimg_big_set_fetcher(image_big_fetch);
     api_apply_settings();
 }
 

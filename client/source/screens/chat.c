@@ -25,6 +25,9 @@ static bool s_first_poll;
 static float s_close_arm;   // > 0: "Close room" was tapped once, waiting for the confirming tap
 static float s_scroll;      // pixels scrolled up from the bottom of the log (0 = newest pinned)
 static float s_content_h, s_prev_content_h;  // log content height, for anchoring while scrolled
+static bool s_viewing;        // fullscreen image viewer open
+static char s_view_id[UID_LEN];
+static float s_zoom, s_pan_x, s_pan_y;
 
 static const char *EMOTICONS[8] = {":)", ":D", ";)", ":(", "<3", "^^", "xD", "!!"};
 
@@ -89,8 +92,10 @@ static void media_done(int status, cJSON *json, void *user) {
 }
 
 static void play_selected(void) {
+    dbg_log("play_selected sel=%d count=%d", s_voice_sel, g_chat.count);
     if (s_voice_sel < 0 || s_voice_sel >= g_chat.count) return;
     Message *m = &g_chat.items[s_voice_sel];
+    dbg_log("  msg type=%d voice=%p len=%u expired=%d can_play=%d", m->type, (void*)m->voice, (unsigned)m->voice_len, m->expired, voice_can_play());
     if (m->type != MSG_VOICE) return;
     if (!voice_can_play()) {  // no sdmc:/3ds/dspfirm.cdc -> ndsp never came up
         app_toast(tr(S_VOICE_NO_DSP), C_MUTED);
@@ -132,6 +137,7 @@ static void enter(void *arg) {
     s_first_poll = true;
     s_scroll = 0;
     s_prev_content_h = 0;
+    s_viewing = false;
     s_close_arm = 0;
     s_last_count = g_chat.count;
     voice_panel_reset();
@@ -174,6 +180,24 @@ static bool show_close(void) { return s_arg.kind == 2 && s_arg.is_host && strncm
 static void update(const Input *in) {
     s_caret += in->dt;
 
+    if (s_viewing) {
+        if (in->down & (KEY_B | KEY_A)) {
+            s_viewing = false;
+            chatimg_big_clear();
+            return;
+        }
+        // Circle Pad zooms (push up), D-pad pans when zoomed in.
+        if (in->circle.dy > 18 || in->circle.dy < -18) s_zoom += in->circle.dy * 0.02f * in->dt;
+        if (s_zoom < 1.0f) s_zoom = 1.0f;
+        if (s_zoom > 4.0f) s_zoom = 4.0f;
+        float pan = 260.0f * in->dt;
+        if (in->held & KEY_LEFT) s_pan_x += pan;
+        if (in->held & KEY_RIGHT) s_pan_x -= pan;
+        if (in->held & KEY_UP) s_pan_y += pan;
+        if (in->held & KEY_DOWN) s_pan_y -= pan;
+        return;
+    }
+
     // Circle Pad scrolls the chat log like a scroll wheel (push up = into history).
     const float VP_H = TOP_H - 24 - 18;  // must match the chatlog_draw height below
     if (in->circle.dy > 18 || in->circle.dy < -18) s_scroll += in->circle.dy * 1.6f * in->dt;
@@ -204,8 +228,8 @@ static void update(const Input *in) {
         poll_now();
     }
     // voice cursor
-    if (in->down & KEY_UP) s_voice_sel = chatlog_step_voice(&g_chat, s_voice_sel, -1);
-    if (in->down & KEY_DOWN) s_voice_sel = chatlog_step_voice(&g_chat, s_voice_sel, +1);
+    if (in->down & KEY_UP) s_voice_sel = chatlog_step_media(&g_chat, s_voice_sel, -1);
+    if (in->down & KEY_DOWN) s_voice_sel = chatlog_step_media(&g_chat, s_voice_sel, +1);
     if (s_voice_sel >= g_chat.count) s_voice_sel = -1;
 
     if (s_voice_mode) {
@@ -221,8 +245,17 @@ static void update(const Input *in) {
         }
         return;
     }
-    if (in->down & KEY_A && !s_emoji_open) {
-        if (s_voice_sel >= 0) play_selected();
+    if (in->down & KEY_A && !s_emoji_open && s_voice_sel >= 0 && s_voice_sel < g_chat.count) {
+        const Message *sel = &g_chat.items[s_voice_sel];
+        if (sel->type == MSG_IMAGE && !sel->expired) {
+            s_viewing = true;
+            strncpy(s_view_id, sel->id, sizeof(s_view_id) - 1);
+            s_view_id[sizeof(s_view_id) - 1] = 0;
+            s_zoom = 1.0f;
+            s_pan_x = s_pan_y = 0;
+            return;
+        }
+        play_selected();
     }
 
     // FR / EN world-chat switch (global room only), top-right of the JUMP TO strip
@@ -322,6 +355,7 @@ static void update(const Input *in) {
         if (s_compose[0]) send_text();
         else {
             int v = chatlog_last_voice(&g_chat);  // nothing selected: play the newest voice note
+            dbg_log("A pressed, no sel: last_voice=%d", v);
             if (v >= 0) { s_voice_sel = v; play_selected(); }
         }
     }
@@ -330,6 +364,25 @@ static void update(const Input *in) {
 // ---- Top ---------------------------------------------------------------------------------------
 
 static void draw_top(void) {
+    if (s_viewing) {
+        ui_rect(0, 0, TOP_W, TOP_H, C_INK);
+        C2D_Image *im = chatimg_big_get(s_view_id);
+        if (im) {
+            float iw = im->subtex->width * s_zoom, ih = im->subtex->height * s_zoom;
+            float mx = iw > TOP_W ? (iw - TOP_W) / 2 : 0, my = ih > TOP_H ? (ih - TOP_H) / 2 : 0;
+            if (s_pan_x > mx) s_pan_x = mx;
+            if (s_pan_x < -mx) s_pan_x = -mx;
+            if (s_pan_y > my) s_pan_y = my;
+            if (s_pan_y < -my) s_pan_y = -my;
+            C2D_DrawImageAt(*im, (TOP_W - iw) / 2 + s_pan_x, (TOP_H - ih) / 2 + s_pan_y, 0.5f, NULL, s_zoom, s_zoom);
+        } else {
+            ui_text_v(TOP_W / 2, 0, TOP_H, 12, C_STONE, ALIGN_CENTER, FONT_HEAD,
+                      chatimg_big_failed(s_view_id) ? tr(S_IMAGE_UNAVAIL) : "...");
+        }
+        ui_rrect(8, TOP_H - 22, 184, 16, 6, RGBA(0x000000, 150));
+        ui_text_v(14, TOP_H - 22, 16, 9, C_WHITE, ALIGN_LEFT, FONT_HEAD, tr(S_IMG_VIEW_HINT));
+        return;
+    }
     ui_rect(0, 0, TOP_W, TOP_H, C_NAVY);
     if (s_arg.kind == 0 && s_bg_sheet) C2D_DrawImageAt(s_bg, 0, 0, 0.5f, NULL, 1.0f, 1.0f);
     // a little depth: darker band at the bottom like the photo gradient
@@ -451,6 +504,7 @@ static void leave(void) {
         s_bg_sheet = NULL;
     }
     chatimg_clear();
+    chatimg_big_clear();
     net_cancel_tag(TAG_CHAT_POLL);
     net_cancel_tag(TAG_MEDIA);
     voice_panel_reset();

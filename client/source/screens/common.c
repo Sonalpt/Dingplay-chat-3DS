@@ -141,6 +141,16 @@ int chatlog_step_voice(const MessageList *l, int current, int dir) {
     }
 }
 
+int chatlog_step_media(const MessageList *l, int current, int dir) {
+    int i = current < 0 ? (dir < 0 ? l->count : -1) : current;
+    for (;;) {
+        i += dir;
+        if (i < 0 || i >= l->count) return current;
+        const Message *m = &l->items[i];
+        if (m->type == MSG_VOICE || (m->type == MSG_IMAGE && !m->expired)) return i;
+    }
+}
+
 int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogStyle style, int selected, float scroll, float *content_h) {
     const float gap = 6;
     const float avatar = style == LOG_NAVY ? 20 : 18;
@@ -188,7 +198,12 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             if (style == LOG_NAVY) ui_avatar(ax, ay, avatar, true, m->uid, m->name, 0, 0);
             else ui_avatar(ax, ay, avatar, true, m->uid, m->name, 2, C_INK);
             bx = x + avatar + 6;
-            if (name_h) ui_text(bx, top, 8, C_NAVY_NAME, ALIGN_LEFT, FONT_HEAD, m->name);
+            if (name_h) {
+                ui_text(bx, top, 8, C_NAVY_NAME, ALIGN_LEFT, FONT_HEAD, m->name);
+                char tt[8];
+                ui_format_time(tt, sizeof(tt), m->ts ? m->ts : (int64_t)time(NULL) * 1000);
+                ui_text(bx + ui_text_width(8, FONT_HEAD, m->name) + 6, top, 8, RGBA(0xFFFFFF, 120), ALIGN_LEFT, FONT_HEAD, tt);
+            }
             by = top + name_h;
         } else {
             bx = x + w;  // right edge; adjusted per bubble width below
@@ -244,6 +259,7 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
             C2D_Image *im = chatimg_get(m->id);
             if (im) C2D_DrawImageAt(*im, dx + 2, dy + 2, 0.5f, NULL, IMG_DW / im->subtex->width, IMG_DH / im->subtex->height);
             else ui_text_v(dx + 2 + IMG_DW / 2, dy + 2, IMG_DH, 10, C_MUTED, ALIGN_CENTER, FONT_BODY, chatimg_failed(m->id) ? tr(S_IMAGE_UNAVAIL) : "...");
+            if (i == selected) ui_rrect_outline(dx - 1, dy - 1, IMG_DW + 6, IMG_DH + 6, 6, 2, C_ORANGE);
         } else {
             char text[MSG_TEXT_LEN + NAME_LEN + 4];
             const char *body = m->type == MSG_IMAGE ? tr(S_IMAGE_EXPIRED) : m->text;

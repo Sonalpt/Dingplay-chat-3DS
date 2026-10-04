@@ -23,6 +23,7 @@ int chatlog_draw(const MessageList *l, float x, float y, float w, float h, LogSt
 int chatlog_last_voice(const MessageList *l);
 // Move a voice-message cursor: dir -1 (older) / +1 (newer). Returns new index or -1.
 int chatlog_step_voice(const MessageList *l, int current, int dir);
+int chatlog_step_media(const MessageList *l, int current, int dir);  // voice or non-expired image
 
 // Voice element (screen 08): 17 px tall on hardware. Returns its width.
 float voice_bubble(float x, float y, const Message *m, bool mine, LogStyle style, float scale);

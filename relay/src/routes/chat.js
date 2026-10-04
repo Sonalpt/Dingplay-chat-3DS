@@ -330,8 +330,11 @@ module.exports = async function chatRoutes(app) {
   // Image display: GET /image/:room/:id -> raw RGBA, letterboxed onto a fixed IMG_W x IMG_H
   // transparent canvas (the console has no image decoder). Phone-sent images only; they
   // expire after 1 h like voice. Response is exactly IMG_W*IMG_H*4 bytes.
-  const IMG_W = 140, IMG_H = 105;
+  const IMG_W = 140, IMG_H = 105;        // chat thumbnail
+  const BIG_W = 400, BIG_H = 240;        // fullscreen viewer (top screen)
   app.get('/image/:room/:id', { preHandler: auth.requireAuth }, async (req, reply) => {
+    const big = req.query.big === '1';
+    const W = big ? BIG_W : IMG_W, H = big ? BIG_H : IMG_H;
     const room = parseRoomId(req.params.room, pickLang(req.query));
     if (!room) return reply.code(400).send({ error: 'bad_room' });
     const id = String(req.params.id);
@@ -351,23 +354,23 @@ module.exports = async function chatRoutes(app) {
     // Prefer the full image, not the 3DS drawing PNG; both live under mediaUrl.
     const srcUrl = d.mediaUrl || d.mediaUrl3ds;
     if (!srcUrl) return reply.code(404).send({ error: 'no_media' });
-    let rgba = media.cacheGet('image', srcUrl, 'rgba');
+    let rgba = media.cacheGet('image', srcUrl, big ? 'rgba-big' : 'rgba');
     if (!rgba) {
       try {
         const { Jimp } = require('jimp');
         const bytes = await storage.download(srcUrl);
         const img = await Jimp.read(bytes);
-        img.contain({ w: IMG_W, h: IMG_H }); // keep aspect, pad with transparent
+        img.contain({ w: W, h: H }); // keep aspect, pad with transparent
         rgba = Buffer.from(img.bitmap.data);  // RGBA, top-left origin, IMG_W*IMG_H*4
-        media.cachePut('image', srcUrl, 'rgba', rgba);
+        media.cachePut('image', srcUrl, big ? 'rgba-big' : 'rgba', rgba);
       } catch (err) {
         req.log.warn({ err: err.message }, 'image decode failed');
         return reply.code(502).send({ error: 'image_failed' });
       }
     }
     reply.header('content-type', 'application/octet-stream');
-    reply.header('x-width', String(IMG_W));
-    reply.header('x-height', String(IMG_H));
+    reply.header('x-width', String(W));
+    reply.header('x-height', String(H));
     reply.header('cache-control', 'private, max-age=3600');
     return reply.send(rgba);
   });
