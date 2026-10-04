@@ -225,6 +225,10 @@ static void draw_bottom(void) {
     }
 }
 
-static void leave(void) {}
+static void leave(void) {
+    // Give the wireless back to infrastructure Wi-Fi unless a room is still live.
+    // udsInit() (local_init) owns the radio; without udsExit() online mode stays offline.
+    if (!local_in_room()) local_exit();
+}
 
 const ScreenVTable SCREEN_LOBBY = {enter, leave, update, draw_top, draw_bottom};

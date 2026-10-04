@@ -11,6 +11,7 @@ static float s_refresh;
 static void enter(void *arg) {
     (void)arg;
     s_refresh = 0;
+    if (local_available() && !local_in_room()) local_exit();  // restore Wi-Fi after Local Wireless
     if (g_session.logged_in) {
         api_me(NULL, NULL);
         api_news(NULL, NULL);
