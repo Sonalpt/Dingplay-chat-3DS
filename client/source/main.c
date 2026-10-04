@@ -22,7 +22,7 @@ float g_time;
 C3D_RenderTarget *g_top, *g_bottom;
 
 extern const ScreenVTable SCREEN_BOOT, SCREEN_LOGIN, SCREEN_HOME, SCREEN_FRIENDS, SCREEN_CHAT, SCREEN_LOBBY, SCREEN_CREATE_ROOM,
-    SCREEN_LOCAL_CHAT, SCREEN_MANAGE_ROOM, SCREEN_SETTINGS;
+    SCREEN_LOCAL_CHAT, SCREEN_MANAGE_ROOM, SCREEN_SETTINGS, SCREEN_CAMERA;
 
 const ScreenVTable *const SCREENS[SCR_COUNT] = {
     [SCR_BOOT] = &SCREEN_BOOT,
@@ -35,6 +35,7 @@ const ScreenVTable *const SCREENS[SCR_COUNT] = {
     [SCR_LOCAL_CHAT] = &SCREEN_LOCAL_CHAT,
     [SCR_MANAGE_ROOM] = &SCREEN_MANAGE_ROOM,
     [SCR_SETTINGS] = &SCREEN_SETTINGS,
+    [SCR_CAMERA] = &SCREEN_CAMERA,
 };
 
 // ---- Navigation --------------------------------------------------------------------------------

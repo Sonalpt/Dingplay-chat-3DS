@@ -44,6 +44,7 @@ void api_chat_poll(ApiDone done, void *user); // GET /chat/<room>?since=
 void api_chat_send_text(const char *text, ApiDone done, void *user);
 void api_chat_send_draw(const Drawing *d, ApiDone done, void *user);
 void api_chat_send_voice(const u8 *dpv, size_t len, ApiDone done, void *user);
+void api_chat_send_photo(const u16 *rgb565, int w, int h, ApiDone done, void *user);
 // Fetches a voice note's DPV bytes into the message (msg->voice). done gets status only.
 void api_media_fetch(Message *msg, ApiDone done, void *user);
 const char *api_chat_room(void);

@@ -257,6 +257,47 @@ module.exports = async function chatRoutes(app) {
     return reply.code(400).send({ error: 'bad_type' });
   });
 
+  // Photo from the 3DS camera: POST /chat/:room/photo?w=&h= with a raw RGB565 body
+  // (the console has no JPEG encoder). We convert to JPEG, upload like any image, and
+  // write an image message so phones see it too. Expires after 1 h like other media.
+  app.post('/chat/:room/photo', { preHandler: auth.requireAuth }, async (req, reply) => {
+    const room = parseRoomId(req.params.room, pickLang(req.query));
+    if (!room) return reply.code(400).send({ error: 'bad_room' });
+    if (rateLimited(req.uid)) return reply.code(429).send({ error: 'slow_down' });
+    const blockedReply = await assertCanPost(room, req.uid, reply);
+    if (blockedReply) return blockedReply;
+    const w = Number(req.query.w) | 0, h = Number(req.query.h) | 0;
+    if (w < 16 || h < 16 || w > 512 || h > 384) return reply.code(400).send({ error: 'bad_size' });
+    const body = Buffer.isBuffer(req.body) ? req.body : null;
+    if (!body || body.length !== w * h * 2) return reply.code(400).send({ error: 'bad_frame' });
+
+    // RGB565 (little-endian) -> RGBA8
+    const { Jimp } = require('jimp');
+    const img = new Jimp({ width: w, height: h });
+    const out = img.bitmap.data;
+    for (let i = 0; i < w * h; i++) {
+      const p = body[i * 2] | (body[i * 2 + 1] << 8);
+      const r = (p >> 11) & 0x1f, g = (p >> 5) & 0x3f, b = p & 0x1f;
+      out[i * 4] = (r * 255 + 15) / 31 | 0;
+      out[i * 4 + 1] = (g * 255 + 31) / 63 | 0;
+      out[i * 4 + 2] = (b * 255 + 15) / 31 | 0;
+      out[i * 4 + 3] = 255;
+    }
+    const jpeg = await img.getBuffer('image/jpeg');
+    const me = await auth.getUser(req.uid);
+    const id = crypto.randomUUID();
+    const mediaUrl = await storage.uploadPublic(`chat_media/${req.uid}/images/${id}.jpg`, jpeg, 'image/jpeg');
+    const data = {
+      ...baseMessage(me, req.uid),
+      messageContent: '📷 Photo',
+      type: 'image',
+      mediaUrl,
+      expiresAt: Timestamp.fromMillis(Date.now() + MEDIA_TTL_MS),
+    };
+    const msgId = await writeMessage(room, req.uid, data, '📷 Photo', 'image');
+    return { ok: true, id: msgId };
+  });
+
   // Voice: POST /chat/:room/voice?dur=<ms> with a raw DPV1 body (application/octet-stream).
   app.post('/chat/:room/voice', { preHandler: auth.requireAuth }, async (req, reply) => {
     const room = parseRoomId(req.params.room, pickLang(req.query));

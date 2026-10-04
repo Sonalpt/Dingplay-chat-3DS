@@ -340,9 +340,13 @@ static void update(const Input *in) {
     if (ui_tap(in, 10, FIELD_Y, BOT_W - 20, FIELD_H)) {
         kbd_prompt(KBD_TEXT, tr(S_TYPE_MESSAGE), s_compose, sizeof(s_compose), 200);
     }
-    float bw = (BOT_W - 20 - 14) / 3.2f;
+    float bw = (BOT_W - 20 - 3 * 7) / 4.3f;
     if (ui_tap(in, 10, BTN_Y, bw, BTN_H)) s_emoji_open = true;
-    if (ui_tap(in, 10 + bw + 7, BTN_Y, bw, BTN_H) || (in->down & KEY_X)) {
+    if (ui_tap(in, 10 + (bw + 7), BTN_Y, bw, BTN_H)) {
+        app_go(SCR_CAMERA, NULL);
+        return;
+    }
+    if (ui_tap(in, 10 + 2 * (bw + 7), BTN_Y, bw, BTN_H) || (in->down & KEY_X)) {
         if (voice_can_record()) {
             s_voice_mode = true;
             voice_panel_reset();
@@ -350,7 +354,7 @@ static void update(const Input *in) {
             app_toast("mic unavailable", C_RED);
         }
     }
-    if (ui_tap(in, 10 + 2 * (bw + 7), BTN_Y, bw * 1.2f, BTN_H)) send_text();
+    if (ui_tap(in, 10 + 3 * (bw + 7), BTN_Y, bw * 1.3f, BTN_H)) send_text();
     else if (in->down & KEY_A && s_voice_sel < 0 && !s_emoji_open) {
         if (s_compose[0]) send_text();
         else {
@@ -478,14 +482,16 @@ static void draw_bottom(void) {
         } else {
             ui_text_v(20, FIELD_Y, FIELD_H, 13, C_MUTED2, ALIGN_LEFT, FONT_BODY, tr(S_TYPE_MESSAGE));
         }
-        float bw = (BOT_W - 20 - 14) / 3.2f;
+        float bw = (BOT_W - 20 - 3 * 7) / 4.3f;
         ui_card(10, BTN_Y, bw, BTN_H, 10, 2, C_WHITE, C_INK, 0, 0, 0);
-        char em[24];
-        snprintf(em, sizeof(em), ":) %s", tr(S_EMOJI));
-        ui_text_v(10 + bw / 2, BTN_Y, BTN_H, 11, C_INK, ALIGN_CENTER, FONT_HEAD, em);
-        ui_card(10 + bw + 7, BTN_Y, bw, BTN_H, 10, 2, C_BLUE, C_INK, 0, 3, C_BLUE_SHADOW);
-        icon_label(10 + bw + 7, BTN_Y, bw, BTN_H, ICON_MIC, 12, 11, C_WHITE, tr(S_VOICE));
-        float sx = 10 + 2 * (bw + 7), sw = bw * 1.2f;
+        ui_text_v(10 + bw / 2, BTN_Y, BTN_H, 11, C_INK, ALIGN_CENTER, FONT_HEAD, ":)");
+        float camx = 10 + (bw + 7);
+        ui_card(camx, BTN_Y, bw, BTN_H, 10, 2, C_ORANGE, C_INK, 0, 3, C_GOLD);
+        icon_label(camx, BTN_Y, bw, BTN_H, ICON_CAMERA, 13, 11, C_WHITE, tr(S_CAM));
+        float vx = 10 + 2 * (bw + 7);
+        ui_card(vx, BTN_Y, bw, BTN_H, 10, 2, C_BLUE, C_INK, 0, 3, C_BLUE_SHADOW);
+        icon_label(vx, BTN_Y, bw, BTN_H, ICON_MIC, 12, 11, C_WHITE, tr(S_VOICE));
+        float sx = 10 + 3 * (bw + 7), sw = bw * 1.3f;
         ui_card(sx, BTN_Y, sw, BTN_H, 10, 2, C_GREEN, C_INK, 0, 3, C_GREEN_SHADOW);
         icon_label(sx, BTN_Y, sw, BTN_H, ICON_SEND, 15, 12, C_WHITE, tr(S_SEND));
         if (s_emoji_open) {

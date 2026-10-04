@@ -642,6 +642,12 @@ void api_chat_send_voice(const u8 *dpv, size_t len, ApiDone done, void *user) {
     net_request("POST", path, dpv, len, "application/octet-stream", on_json, ctx_new(send_done, s), TAG_CHAT_SEND, NULL);
 }
 
+void api_chat_send_photo(const u16 *rgb565, int w, int h, ApiDone done, void *user) {
+    char path[96];
+    snprintf(path, sizeof(path), "/chat/%s/photo?w=%d&h=%d&lang=%s", g_chat.room, w, h, g_lang == LANG_FR ? "fr" : "en");
+    net_request("POST", path, rgb565, (size_t)w * h * 2, "application/octet-stream", on_json, ctx_new(done, user), TAG_CHAT_SEND, NULL);
+}
+
 static void media_done(NetJob *job) {
     Ctx *c = (Ctx *)job->user;
     Message *m = msglist_find(&g_chat, c->id);
