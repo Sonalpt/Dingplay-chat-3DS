@@ -198,9 +198,9 @@ bool store_load_cached(const char *room, MessageList *l) {
             if (!m.draw) m.type = MSG_IMAGE;
         }
         if (m.type == MSG_VOICE) {
-            // media older than an hour is gone server-side too
-            int64_t now = (int64_t)time(NULL) * 1000;
-            if (m.ts && now - m.ts > 3600 * 1000) m.expired = true;
+            // Don't guess expiry from the console clock: the 3DS RTC is local time while
+            // m.ts is UTC, so a positive-offset timezone wrongly expires fresh media. The
+            // relay decides — it stamps `exp` on the next poll and returns 410 if truly gone.
             for (int i = 0; i < 8; i++) m.bars[i] = 4 + ((i * 5 + 2) % 11);
         }
         if (m.id[0]) msglist_push(l, &m);
