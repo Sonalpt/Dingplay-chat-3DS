@@ -1,4 +1,5 @@
 #include "voice.h"
+#include "dbg.h"
 #include "adpcm.h"
 #include <malloc.h>
 #include <math.h>
@@ -46,7 +47,9 @@ bool voice_init(void) {
     }
     // ndsp needs the DSP firmware dump (sdmc:/3ds/dspfirm.cdc); without it we can
     // still record and send, just not play.
-    s_ndsp_ok = R_SUCCEEDED(ndspInit());
+    Result ndsp_rc = ndspInit();
+    s_ndsp_ok = R_SUCCEEDED(ndsp_rc);
+    dbg_log("voice: ndspInit -> 0x%08lx (playback %s), mic %s", (unsigned long)ndsp_rc, s_ndsp_ok ? "OK" : "OFF", s_mic_ok ? "OK" : "OFF");
     if (s_ndsp_ok) {
         ndspSetOutputMode(NDSP_OUTPUT_MONO);
         ndspChnSetInterp(0, NDSP_INTERP_LINEAR);

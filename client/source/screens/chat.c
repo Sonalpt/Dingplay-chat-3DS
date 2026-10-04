@@ -317,7 +317,14 @@ static void update(const Input *in) {
             app_toast("mic unavailable", C_RED);
         }
     }
-    if (ui_tap(in, 10 + 2 * (bw + 7), BTN_Y, bw * 1.2f, BTN_H) || (in->down & KEY_A && s_voice_sel < 0)) send_text();
+    if (ui_tap(in, 10 + 2 * (bw + 7), BTN_Y, bw * 1.2f, BTN_H)) send_text();
+    else if (in->down & KEY_A && s_voice_sel < 0 && !s_emoji_open) {
+        if (s_compose[0]) send_text();
+        else {
+            int v = chatlog_last_voice(&g_chat);  // nothing selected: play the newest voice note
+            if (v >= 0) { s_voice_sel = v; play_selected(); }
+        }
+    }
 }
 
 // ---- Top ---------------------------------------------------------------------------------------
