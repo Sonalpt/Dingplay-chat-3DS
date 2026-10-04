@@ -69,7 +69,7 @@ static void update(const Input *in) {
     s_caret += in->dt;
     if (ui_tap(in, 12, FY_USER, 296, 32)) {
         s_focus = 0;
-        if (kbd_prompt(KBD_USERNAME, tr(S_USERNAME), s_user, sizeof(s_user), 40)) s_focus = 1;
+        if (kbd_prompt(KBD_USERNAME, tr(S_EMAIL), s_user, sizeof(s_user), 60)) s_focus = 1;
     }
     if (ui_tap(in, 12, FY_PASS, 240, 32)) {
         s_focus = 1;
@@ -154,7 +154,7 @@ static void field(float y, const char *label, const char *value, bool focused, b
 static void draw_bottom(void) {
     ui_rect(0, 0, BOT_W, BOT_H, C_CREAM);
     char label[64];
-    field(FY_USER, tr(S_USERNAME), s_user, s_focus == 0, false, C_MUTED);
+    field(FY_USER, tr(S_EMAIL), s_user, s_focus == 0, false, C_MUTED);
     snprintf(label, sizeof(label), "%s · %s", tr(S_PASSWORD), tr(S_TAP_KEYBOARD));
     field(FY_PASS, label, s_pass, s_focus == 1, true, C_GREEN);
     ui_text_v(252 + 46, FY_PASS, 32, 9, C_MUTED, ALIGN_RIGHT, FONT_HEAD, s_show_pass ? tr(S_HIDE) : tr(S_SHOW));
